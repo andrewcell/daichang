@@ -6,7 +6,11 @@ import kotlinx.html.*
 import java.text.SimpleDateFormat
 import java.util.*
 
-class AddModalTemplate(private val index: Int) : Template<FlowContent> {
+class AddModalTemplate(
+    private val index: Int,
+    private val modelList: List<String>,
+    private val cpuList: List<String>? = null,
+) : Template<FlowContent> {
     override fun FlowContent.apply() {
         insert(ModalTemplate("addModal")) {
             insert(ModalTemplate("deleteConfirmModal")) {
@@ -39,8 +43,14 @@ class AddModalTemplate(private val index: Int) : Template<FlowContent> {
                     insert(InputTemplate("inputMgmtNumber", "EQ2020090001", "EQ")) {
                         inputLabel { +"관리번호" }
                     }
-                    insert(InputTemplate("inputModelName", "B80GV")) {
+                    insert(InputTemplate("inputModelName", "B80GV", inputList = "modelList")) {
                         inputLabel { +"모델명" }
+                    }
+                    dataList {
+                        id = "modelList"
+                        modelList.forEach { model ->
+                            option { +model }
+                        }
                     }
                     insert(InputTemplate("inputMfrDate", inputType = InputType.date, inputRequired = true)) {
                         inputLabel { +"제조일자" }
@@ -52,12 +62,10 @@ class AddModalTemplate(private val index: Int) : Template<FlowContent> {
                         insert(InputTemplate("inputCPU", "Intel(R) Core(TM) i5-10400 CPU @ 2.90GHz", inputList = "cpuDataList")) {
                             inputLabel { +"CPU" }
                         }
-                        Constants.staticData?.modelNameToCPU?.let {
-                            dataList {
-                                id = "cpuDataList"
-                                it.values.forEach { cpu ->
-                                    option { +cpu }
-                                }
+                        dataList {
+                            id = "cpuDataList"
+                            cpuList?.forEach { cpu ->
+                                option { +cpu }
                             }
                         }
                         insert(InputTemplate("inputHDD", inputType = InputType.number)) {
