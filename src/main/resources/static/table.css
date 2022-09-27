@@ -1,0 +1,75 @@
+@media print {
+            body {
+                width: 21cm;
+                height: 29.7cm;
+                page-break-inside:auto;
+            }
+  table { page-break-inside:auto }
+   tr    { page-break-inside:avoid; page-break-after:auto }
+
+        }
+        table td, table th {
+            border: 2px solid black;
+        }
+        table {
+            float: left;
+            border-collapse: collapse;
+            font-size: 12px;
+
+        }
+        .number {
+            font-size: 42px;
+
+        }
+        .title {
+            font-size: 12px;
+            width: 80px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .status {
+            font-weight: bold;
+        }
+        .titleBorder {
+            border-bottom: 3px solid;
+        }
+        td {
+            border: 1px solid;
+        }
+        i {
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+        .status {
+            text-align: center;
+        }
+        .memo {
+            text-align: center;
+        }
+                .monitorTable1 {
+
+                    width: 320px;
+                    border-top: 2px solid black;
+                    border-left: 2px solid black;
+                    border-right: 2px solid black;
+                }
+          .monitorTitle {
+                    text-align: center;
+                }
+                .no-bottom-border {
+                    border-bottom: none !important;
+                }
+                .monitorTable2 {
+                    border-left: 2px solid black;
+                    border-right: 2px solid black;
+                    width: 320px;
+                }
+                .monitorTitle {
+                    text-align: center;
+                }
+                .backColor {
+                    background-color: rgb(191,191,191)
+                }
+                .tableHeight {
+                    height: 22px;
+                }
