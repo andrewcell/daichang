@@ -132,7 +132,13 @@ class TableTemplate(private val index: Byte) : Template<FlowContent> {
         h5 {
             +"총 개수: $totalCount"
         }
-        insert(AddModalTemplate(index.toInt())) {}
+        val cpuList = if (index in 1..2) {
+            list.map {
+                it as PC
+                it.cpu
+            }.distinct().sorted()
+        } else null
+        insert(AddModalTemplate(index.toInt(), list.map { it.modelName }.distinct().sorted(), cpuList)) {}
         insert(ModalTemplate("filterModal")) {
             modalTitle { +"필터" }
             modalBody {
