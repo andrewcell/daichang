@@ -45,6 +45,9 @@ dependencies {
     implementation("org.jetbrains.exposed", "exposed-java-time", "0.39.1")
     // https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
     implementation("ch.qos.logback:logback-classic:1.4.1")
+    // https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc
+    implementation("org.xerial:sqlite-jdbc:3.39.3.0")
+
     // Webjars
     // https://mvnrepository.com/artifact/org.webjars/bootstrap
     implementation("org.webjars:bootstrap:5.2.0")
