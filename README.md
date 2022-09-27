@@ -17,7 +17,7 @@ sh-3.14$ daichang-*/bin/daichang-*.sh
  - [x] Better Javascript codes (09.27.2022.)
 
 ## Phase 2 (Current)
- - [ ] Initialize Git
+ - [x] Initialize Git (09.27.2022.)
  - [ ] Exposed SQL, data will be save into DBMS
  - [ ] Import, export to spreadsheet file
  - [ ] Advanced Filtering. Almost infinite Filter items
