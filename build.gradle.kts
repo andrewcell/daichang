@@ -13,7 +13,6 @@ group = "com.example"
 version = "0.0.1"
 application {
     mainClass.set("com.example.ApplicationKt")
-
     val isDevelopment: Boolean = project.ext.has("development")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
 }
@@ -44,6 +43,8 @@ dependencies {
     implementation("org.jetbrains.exposed", "exposed-dao", "0.39.1")
     implementation("org.jetbrains.exposed", "exposed-jdbc", "0.39.1")
     implementation("org.jetbrains.exposed", "exposed-java-time", "0.39.1")
+    // https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
+    implementation("ch.qos.logback:logback-classic:1.4.1")
     // Webjars
     // https://mvnrepository.com/artifact/org.webjars/bootstrap
     implementation("org.webjars:bootstrap:5.2.0")
