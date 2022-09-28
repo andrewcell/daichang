@@ -1,20 +1,25 @@
 package com.example.plugins
 
 import com.example.*
-import com.example.templates.*
-import io.ktor.server.routing.*
+import com.example.database.DatabaseHandler
+import com.example.templates.IndexTemplate
+import com.example.templates.LabelTemplate
+import com.example.templates.LayoutTemplate
+import com.example.templates.TableTemplate
 import io.ktor.http.*
-import io.ktor.server.webjars.*
-import io.ktor.server.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.html.*
-import io.ktor.server.response.*
+import io.ktor.server.http.content.*
 import io.ktor.server.request.*
-import kotlinx.html.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.server.webjars.*
+import kotlinx.html.p
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 fun Application.configureRouting() {
     install(Webjars) {
@@ -22,7 +27,7 @@ fun Application.configureRouting() {
     }
     routing {
         get("/") {
-            val equipments = WorkSheetHandler.getAll()
+            val equipments = DatabaseHandler.getAll()
             call.respondHtmlTemplate(LayoutTemplate()) {
                 content {
                     insert(IndexTemplate(equipments)) {}
@@ -65,31 +70,32 @@ fun Application.configureRouting() {
             val index = parameters["inputIndex"]?.toIntOrNull() ?: -1
             if (index !in 1..3)
                 call.respond(HttpStatusCode.BadRequest, "Invalid index or number")
-            val number = parameters["inputNumber"]?.toIntOrNull() ?: -1
+            val id = parameters["inputId"]?.toIntOrNull() ?: -1
+            val cabinetNumber = parameters["inputCabinetNumber"]?.toIntOrNull() ?: -1
             val mgmtNumber = parameters["inputMgmtNumber"] ?: ""
             val modelName = parameters["inputModelName"] ?: ""
-            val mfrDate = SimpleDateFormat("yyyy-MM-dd").parse(parameters["inputMfrDate"])
+            val mfrDate = LocalDate.parse(parameters["inputMfrDate"], DateTimeFormatter.ISO_LOCAL_DATE)
             val serial = parameters["inputSerial"] ?: ""
             val lastUser = parameters["inputLastUser"] ?: ""
-            val importDate = SimpleDateFormat("yyyy-MM-dd").parse(parameters["inputImportDate"])
+            val importDate = LocalDate.parse(parameters["inputImportDate"], DateTimeFormatter.ISO_LOCAL_DATE)
             val status = Status.findByValue(parameters["inputStatus"] ?: "") ?: Status.NOT_AVAILABLE
             val memo = parameters["inputMemo"] ?: ""
             if (index in 1..2) {
                 val cpu = parameters["inputCPU"] ?: ""
                 val hdd = parameters["inputHDD"]?.toShortOrNull() ?: 0
                 val ram = parameters["inputRAM"]?.toFloatOrNull() ?: 0.0f
-                val OS = parameters["inputOS"] ?: ""
+                val os = parameters["inputOS"] ?: ""
                 val inch = if (index == 2) parameters["inputInch"]?.toFloatOrNull() else null
-                WorkSheetHandler.insertNewEquipment(index, PC(
-                    number, mgmtNumber, modelName, mfrDate, serial, cpu, hdd, ram, OS, inch, lastUser, importDate, status, memo, (index == 2)
+                DatabaseHandler.insertNewEquipment(index, PC(
+                    id, cabinetNumber, mgmtNumber, modelName, mfrDate, serial, cpu, hdd, ram, os, inch, lastUser, importDate, status, memo, (index == 2)
                 ))
             } else {
                 val ratio = parameters["inputRatio"] ?: ""
                 val resolution = parameters["inputResolution"] ?: ""
                 val cable = parameters["inputCable"] ?: ""
                 val inch = parameters["inputInch"]?.toFloatOrNull() ?: 0.0f
-                WorkSheetHandler.insertNewEquipment(index, Monitor(
-                    number, mgmtNumber, modelName, mfrDate, serial, ratio, resolution,inch, cable, lastUser, importDate, status, memo
+                DatabaseHandler.insertNewEquipment(index, Monitor(
+                    id, cabinetNumber, mgmtNumber, modelName, mfrDate, serial, ratio, resolution,inch, cable, lastUser, importDate, status, memo
                 ))
             }
             call.respondRedirect(when (index) {
@@ -104,11 +110,11 @@ fun Application.configureRouting() {
         post("/delete") {
             val parameters = call.receiveParameters()
             val index = parameters["inputIndex"]?.toIntOrNull() ?: -1
-            val number = parameters["inputNumber"]?.toIntOrNull() ?: -1
+            val id = parameters["inputId"]?.toIntOrNull() ?: -1
             val mgmtNumber = parameters["inputMgmtNumber"] ?: ""
             val lastUser = parameters["inputLastUser"] ?: ""
             val modelName = parameters["inputModelName"] ?: ""
-            WorkSheetHandler.deleteEquipment(index, number, mgmtNumber, lastUser, modelName)
+            DatabaseHandler.deleteEquipment(index, id, mgmtNumber, lastUser, modelName)
             call.respondRedirect(when (index) {
                 1 -> "/pc"
                 2 -> "/laptop"
@@ -128,7 +134,7 @@ fun Application.configureRouting() {
             val queryType = parameters["queryType"] ?: ""
             val index = parameters["index"]?.toIntOrNull() ?: -1
             val isAnd = parameters["andOr"] == "and"
-            val originalList = WorkSheetHandler.getList(index)
+            val originalList = DatabaseHandler.getList(index)
             if (originalList.isEmpty()) {
                 call.respond(HttpStatusCode.BadRequest)
                 return@post
@@ -150,13 +156,13 @@ fun Application.configureRouting() {
                 var queryMatch = isAnd
                 if (query.trim() !in arrayOf("", "-", "전체")) {
                     queryMatch = when (queryType) {
-                        "순번" -> it.number.toString()
+                        "순번" -> it.cabinetNumber.toString()
                         "관리번호" -> it.mgmtNumber
                         "모델명" -> it.modelName
-                        "제조일자" -> SimpleDateFormat("yyyy-MM-dd").format(it.mfrDate)
+                        "제조일자" -> it.mfrDate.format(DateTimeFormatter.ISO_LOCAL_DATE)
                         "S/N" -> it.serialNumber
                         "최종사용자" -> it.lastUser
-                        "입고일자" -> SimpleDateFormat("yyyy-MM-dd").format(it.importDate)
+                        "입고일자" -> it.importDate.format(DateTimeFormatter.ISO_LOCAL_DATE)
                         "상태" -> it.status.value
                         "비고" -> it.memo
                         else -> ""
@@ -190,18 +196,18 @@ fun Application.configureRouting() {
                     modelMatch or statusMatch or lastUserMatch or queryMatch or mfrMatch
                 }
             }
-            call.respond(Json.encodeToString(filteredList.map { it.number }))
+            call.respond(Json.encodeToString(filteredList.map { it.cabinetNumber }))
         }
 
-        get("/print/{index}/{number}") {
+        get("/print/{index}/{id}") {
             val index = call.parameters["index"]?.toIntOrNull()
-            val number = call.parameters["number"]?.toIntOrNull()
-            if (index == null || number == null) {
+            val id = call.parameters["id"]?.toIntOrNull()
+            if (index == null || id == null) {
                 call.respond(HttpStatusCode.BadRequest)
                 return@get
             }
-            val list = WorkSheetHandler.getList(index)
-            val found = list.find { it.number == number } ?: return@get
+            val list = DatabaseHandler.getList(index)
+            val found = list.find { it.id == id } ?: return@get
             call.respondHtmlTemplate(LabelTemplate(listOf(found))) { }
             //call.respond(LabelTableTemplate())
        //     println(number + index)
@@ -215,9 +221,9 @@ fun Application.configureRouting() {
             val pc = data.pc ?: emptyList()
             val laptop = data.laptop ?: emptyList()
             val monitor = data.monitor ?: emptyList()
-            val targetList = WorkSheetHandler.getList(1).filter { pc.contains(it.number) } +
-                    WorkSheetHandler.getList(2).filter { laptop.contains(it.number) } +
-                    WorkSheetHandler.getList(3).filter { monitor.contains(it.number) }
+            val targetList = DatabaseHandler.getList(1).filter { pc.contains(it.id) } +
+                    DatabaseHandler.getList(2).filter { laptop.contains(it.id) } +
+                    DatabaseHandler.getList(3).filter { monitor.contains(it.id) }
             call.respondHtmlTemplate(LabelTemplate(targetList)) { }
         }
 

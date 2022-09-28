@@ -24,7 +24,7 @@ class PCLabelTableTemplate(val pc: PC) : Template<FlowContent> {
                     rowSpan = "4"
                     attributes["width"] = "80"
                     attributes["align"] = "center"
-                    +pc.number.toString()
+                    +pc.cabinetNumber.toString()
                 }
             }
             tr {

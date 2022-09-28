@@ -37,7 +37,7 @@ class AddModalTemplate(
             modalBody {
                 form(action = "/save", method = FormMethod.post) {
                     id = "addModalForm"
-                    insert(InputTemplate("inputNumber", "456", inputRequired = true)) {
+                    insert(InputTemplate("inputCabinetNumber", "456", inputRequired = true)) {
                         inputLabel { +"순번" }
                     }
                     insert(InputTemplate("inputMgmtNumber", "EQ2020090001", "EQ")) {
@@ -130,6 +130,12 @@ class AddModalTemplate(
                         input(type = InputType.hidden, name = "inputIndex") {
                             value = index.toString()
                             id = "inputIndex"
+                        }
+                    }
+                    div {
+                        input(type = InputType.hidden, name = "inputId") {
+                            //value = dbId.toString()
+                            id = "inputId"
                         }
                     }
                 }

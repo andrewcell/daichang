@@ -1,12 +1,14 @@
 package com.example
 
+import java.time.LocalDate
 import java.util.Date
 
 data class PC(
-    override val number: Int,
+    override var id: Int,
+    override val cabinetNumber: Int?,
     override val mgmtNumber: String,
     override val modelName: String,
-    override val mfrDate: Date,
+    override val mfrDate: LocalDate,
     override val serialNumber: String,
     val cpu: String,
     val hdd: Short,
@@ -14,7 +16,7 @@ data class PC(
     val OS: String,
     val inch: Float? = null,
     override val lastUser: String,
-    override val importDate: Date,
+    override val importDate: LocalDate,
     override val status: Status,
     override val memo: String,
     val isLaptop: Boolean = false,

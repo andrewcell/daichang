@@ -23,7 +23,7 @@ $(document).ready(() => {
                 input.value = ""; // Remove all values in input boxes except index for identification of which equipment is.
             }
         });
-        $("#inputNumber").val($("#emptyNumber").text()); // Change number to empty number got from server.
+        $("#inputCabinetNumber").val($("#emptyNumber").text()); // Change number to empty number got from server.
         $("#inputImportDate").val(new Date().toISOString().slice(0, 10)); // Set import date to today in format 'yyyy-MM-dd'
         $("#inputOS").val("Win 10"); // Set Windows 10. Windows 10 is out 7 years from now. Why Legacy OSes still hanging around?
         $("#addModalDeleteButton").hide(); // Hide delete button used in when modal use as modification modal.
@@ -35,7 +35,7 @@ $(document).ready(() => {
             if (input.id === "inputIndex") { // If inputIndex is selected, skip it. It is use for identification of what equipment is.
                 return;
             }
-            const inputItem = input.id.substring(5).toLowerCase(); // Each input has id value like inputNumber. Remove 'input' from id, make lower case. inputNumber -> number
+            const inputItem = input.id.substring(5).toLowerCase(); // Each input has id value like inputCabinetNumber. Remove 'input' from id, make lower case. inputNumber -> number
             const values = [...selected].filter(v => { // Find value in table row. Each value in row has "data-info" attributes like 'number'. Find same id with inputItem above
                 return v.attributes["data-info"].value.toLowerCase() === inputItem.toLowerCase();
             })
@@ -84,7 +84,7 @@ $(document).ready(() => {
     });
     $("#addModalPrintButton").on('click', () => { // If click print button in addModal
         const index = $('#inputIndex').val()
-        const number = $('#inputNumber').val()
+        const number = $('#inputCabinetNumber').val()
         window.open('/print/'+ index + '/' + number) // Open new window to /print/index/number. Number 123 PC will be /print/1/123
     });
     /*

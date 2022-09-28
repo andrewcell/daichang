@@ -1,18 +1,14 @@
 package com.example
 
-import org.apache.poi.hssf.usermodel.HSSFCellStyle
 import org.apache.poi.ss.SpreadsheetVersion
-import org.apache.poi.ss.usermodel.BorderStyle
 import org.apache.poi.ss.usermodel.CellCopyPolicy
-import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.ss.util.AreaReference
 import org.apache.poi.ss.util.CellReference
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.text.DateFormat
-import java.text.SimpleDateFormat
-import java.time.format.DateTimeFormatter
+import java.time.LocalDate
+import java.time.ZoneId
 
 object WorkSheetHandler {
     private val workbook = XSSFWorkbook(FileInputStream(Constants.worksheetPath))
@@ -39,17 +35,18 @@ object WorkSheetHandler {
                 try {
                     val inch = if (laptop) row.getCell(9).numericCellValue.toFloat() else null
                     val pc = PC(
-                        number = row.getCell(0).numericCellValue.toInt(),
+                        id = -1,
+                        cabinetNumber = row.getCell(0).numericCellValue.toInt(),
                         mgmtNumber = row.getCell(1).stringCellValue,
                         modelName = row.getCell(2).stringCellValue,
-                        mfrDate = row.getCell(3).dateCellValue,
+                        mfrDate = LocalDate.ofInstant(row.getCell(3).dateCellValue.toInstant(), ZoneId.systemDefault()),
                         serialNumber = row.getCell(4).stringCellValue,
                         cpu = row.getCell(5).stringCellValue,
                         hdd = teraByteToGigaByte(row.getCell(6).stringCellValue).toShort(),
                         ram = row.getCell(7).stringCellValue.replace("GB", "").trim().toFloatOrNull() ?: 0.0f,
                         OS = row.getCell(8).stringCellValue,
                         lastUser = row.getCell(if (laptop) 10 else 9).stringCellValue,
-                        importDate = row.getCell(if (laptop) 11 else 10).dateCellValue,
+                        importDate = LocalDate.ofInstant(row.getCell(if (laptop) 11 else 10).dateCellValue.toInstant(), ZoneId.systemDefault()),
                         status = Status.findByValue(row.getCell(if (laptop) 12 else 11).stringCellValue) ?: Status.TO_BE_DISPOSE,
                         memo = row.getCell(if (laptop) 15 else 14).stringCellValue,
                         inch = inch,
@@ -70,17 +67,18 @@ object WorkSheetHandler {
                 if (row.rowNum == 0) return@forEach
                 try {
                     val monitor = Monitor(
-                        number = row.getCell(0).numericCellValue.toInt(),
+                        id = -1,
+                        cabinetNumber = row.getCell(0).numericCellValue.toInt(),
                         mgmtNumber = row.getCell(1).stringCellValue,
                         modelName = row.getCell(2).stringCellValue,
-                        mfrDate = row.getCell(3).dateCellValue,
+                        mfrDate = LocalDate.ofInstant(row.getCell(3).dateCellValue.toInstant(), ZoneId.systemDefault()),
                         serialNumber = row.getCell(4).stringCellValue,
                         ratio = row.getCell(5).stringCellValue,
                         resolution = row.getCell(6).stringCellValue,
                         inch = row.getCell(7).numericCellValue.toFloat(),
                         cable = row.getCell(8).stringCellValue,
                         lastUser = row.getCell(9).stringCellValue,
-                        importDate = row.getCell(10).dateCellValue,
+                        importDate = LocalDate.ofInstant(row.getCell(10).dateCellValue.toInstant(), ZoneId.systemDefault()),
                         status = Status.findByValue(row.getCell(11).stringCellValue) ?: Status.TO_BE_DISPOSE,
                         memo = row.getCell(14).stringCellValue,
                     )
@@ -121,7 +119,7 @@ object WorkSheetHandler {
             val table = sheet.tables.firstOrNull() ?: return
             val lastRow = table.endCellReference
             val lastRowNum = lastRow.row
-            val exists = sheet.find { it.rowNum != 0 && it.getCell(0)?.numericCellValue?.toInt() == equipment.number }
+            val exists = sheet.find { it.rowNum != 0 && it.getCell(0)?.numericCellValue?.toInt() == equipment.cabinetNumber }
             val update = exists != null
             val newRow = if (!update || forceInsert) {
                 sheet.createRow(lastRowNum + 1)
@@ -131,7 +129,7 @@ object WorkSheetHandler {
             if (!update || forceInsert) {
                 newRow.copyRowFrom(sheet.getRow(lastRowNum - 2), CellCopyPolicy())
             }
-            newRow.getCell(0).setCellValue(equipment.number.toDouble()) // 순번
+            newRow.getCell(0).setCellValue(equipment.cabinetNumber?.toDouble() ?: 0.0) // 순번
             newRow.getCell(1).setCellValue(equipment.mgmtNumber) // 관리번호
             newRow.getCell(2).setCellValue(equipment.modelName) // 모델명
             newRow.getCell(3).setCellValue(equipment.mfrDate) // 제조일자
@@ -174,12 +172,12 @@ object WorkSheetHandler {
         }
     }
 
-    fun deleteEquipment(index: Int, number: Int, mgmtNumber: String, lastUser: String, modelName: String) {
-        if (number == -1 || index == -1) return
+    fun deleteEquipment(index: Int, cabinetNumber: Int, mgmtNumber: String, lastUser: String, modelName: String) {
+        if (cabinetNumber == -1 || index == -1) return
         try {
             val sheet = workbook.getSheet(getSheetName(index))
             val existsRow = sheet.find {
-                it.rowNum != 0 && (it.getCell(0)?.numericCellValue?.toInt() == number)
+                it.rowNum != 0 && (it.getCell(0)?.numericCellValue?.toInt() == cabinetNumber)
             } ?: return
             val table = sheet.tables.firstOrNull() ?: return
             val columnAddition = if (index == 2) 1 else 0
@@ -204,9 +202,9 @@ object WorkSheetHandler {
             //sheet.removeRow(sheet.getRow(table.endRowIndex + 2))
             save()
             when (index) {
-                1 -> pc.removeIf { it.number == number }
-                2 -> laptop.removeIf { it.number == number }
-                3 -> monitor.removeIf { it.number == number }
+                1 -> pc.removeIf { it.cabinetNumber == cabinetNumber }
+                2 -> laptop.removeIf { it.cabinetNumber == cabinetNumber }
+                3 -> monitor.removeIf { it.cabinetNumber == cabinetNumber }
             }
         }
     }
@@ -229,7 +227,7 @@ object WorkSheetHandler {
             3 -> monitor
             else -> emptyList()
         }
-        val numbers = lst.map { it.number }
+        val numbers = lst.mapNotNull { it.cabinetNumber }
         for (i in 1..numbers.last() + 1) {
             if (i !in numbers) return i
         }

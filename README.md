@@ -18,7 +18,7 @@ sh-3.14$ daichang-*/bin/daichang-*.sh
 
 ## Phase 2 (Current)
  - [x] Initialize Git (09.27.2022.)
- - [ ] Exposed SQL, data will be save into DBMS
+ - [x] Exposed SQL, data will be save into DBMS (09.28.2022.)
  - [ ] Import, export to spreadsheet file
  - [ ] Advanced Filtering. Almost infinite Filter items
  - [ ] Full comments into source code. Implement JavaDoc (Dokka)

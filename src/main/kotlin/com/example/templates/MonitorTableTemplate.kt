@@ -5,6 +5,7 @@ import io.ktor.server.html.*
 import kotlinx.html.FlowContent
 import kotlinx.html.*
 import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 class MonitorTableTemplate(val monitor: Monitor) : Template<FlowContent> {
@@ -44,7 +45,7 @@ class MonitorTableTemplate(val monitor: Monitor) : Template<FlowContent> {
                 }
                 td {
                     colSpan = "3"
-                    +SimpleDateFormat("yyyy. MM.").format(monitor.mfrDate)
+                    +monitor.mfrDate.format(DateTimeFormatter.ISO_LOCAL_DATE)
                 }
             }
             tr("item") {
@@ -87,7 +88,7 @@ class MonitorTableTemplate(val monitor: Monitor) : Template<FlowContent> {
                 td {
                     style = "font-size: 52px; text-align: center;"
                     colSpan = "2"
-                    +monitor.number.toString()
+                    +monitor.cabinetNumber.toString()
                 }
             }
             tr {

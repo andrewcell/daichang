@@ -47,6 +47,8 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.4.1")
     // https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc
     implementation("org.xerial:sqlite-jdbc:3.39.3.0")
+    // https://mvnrepository.com/artifact/mysql/mysql-connector-java
+    implementation("mysql:mysql-connector-java:8.0.30")
 
     // Webjars
     // https://mvnrepository.com/artifact/org.webjars/bootstrap

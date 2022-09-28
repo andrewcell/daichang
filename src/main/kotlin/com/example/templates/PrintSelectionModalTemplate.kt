@@ -5,6 +5,7 @@ import io.ktor.server.html.*
 import kotlinx.html.FlowContent
 import kotlinx.html.*
 import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
 
 class PrintSelectionModalTemplate(
     private val index: Int,
@@ -23,15 +24,15 @@ class PrintSelectionModalTemplate(
                 div("list-group") {
                     list.sortedByDescending { it.importDate }.forEach {
                         a("#", classes = "list-group-item list-group-item-action") {
-                            attributes["data-info"] = it.number.toString()
+                            attributes["data-info"] = it.id.toString()
                             div("d-flex w-100 justify-content-between") {
-                                h6 { +"${it.number} - ${it.mgmtNumber}" }
+                                h6 { +"${it.cabinetNumber} - ${it.mgmtNumber}" }
                             }
                                 div {
                                     +"${it.modelName} - ${it.lastUser} - ${it.status.value}"
                                 }
                                 div {
-                                    +"입고일자: ${SimpleDateFormat("yyyy-MM-dd").format(it.importDate)}"
+                                    +"입고일자: ${it.importDate.format(DateTimeFormatter.ISO_LOCAL_DATE)}"
                                 }
                             small("text-muted") { +it.memo }
                         }

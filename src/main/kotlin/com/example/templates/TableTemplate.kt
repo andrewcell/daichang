@@ -1,14 +1,18 @@
 package com.example.templates
 
 import com.example.*
+import com.example.database.DatabaseHandler
+import com.example.database.PCTable
 import io.ktor.server.html.*
 import kotlinx.html.*
+import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.transactions.transaction
 import java.text.SimpleDateFormat
-import java.util.*
+import java.time.format.DateTimeFormatter
 
 class TableTemplate(private val index: Byte) : Template<FlowContent> {
     private var totalCount = 0
-    private var list: List<Equipment> = WorkSheetHandler.getList(index.toInt())
+    private var list: List<Equipment> = DatabaseHandler.getList(index.toInt())
     private val modelNames = mutableListOf<String>()
     private val lastUsers = mutableListOf<String>()
     private val colList = when(index.toInt()) {
@@ -44,8 +48,12 @@ class TableTemplate(private val index: Byte) : Template<FlowContent> {
                         attributes["data-bs-toggle"] = "modal"
                         attributes["data-bs-target"] = "#addModal"
                         td {
-                            attributes[dataInfoAttr] = "number"
-                            +it.number.toString()
+                            attributes[dataInfoAttr] = "id"
+                            +it.id.toString()
+                        }
+                        td {
+                            attributes[dataInfoAttr] = "cabinetNumber"
+                            +it.cabinetNumber.toString()
                         }
                         td {
                             attributes[dataInfoAttr] = "mgmtNumber"
@@ -57,7 +65,7 @@ class TableTemplate(private val index: Byte) : Template<FlowContent> {
                         }
                         td {
                             attributes[dataInfoAttr] = "mfrDate"
-                            +(SimpleDateFormat("yyyy-MM-dd").format(it.mfrDate))
+                            +it.mfrDate.format(DateTimeFormatter.ISO_LOCAL_DATE)
                         }
                         td {
                             attributes[dataInfoAttr] = "serial"
@@ -110,7 +118,7 @@ class TableTemplate(private val index: Byte) : Template<FlowContent> {
                         }
                         td {
                             attributes[dataInfoAttr] = "importDate"
-                            +(SimpleDateFormat("yyyy-MM-dd").format(it.importDate))
+                            +it.importDate.format(DateTimeFormatter.ISO_LOCAL_DATE)
                         }
                         td {
                             attributes[dataInfoAttr] = "status"
@@ -127,16 +135,20 @@ class TableTemplate(private val index: Byte) : Template<FlowContent> {
         div {
             id = "emptyNumber"
             style = "display: none;"
-            +WorkSheetHandler.getEmptyNumber(index.toInt()).toString()
+            +DatabaseHandler.getEmptyCabinetNumber(index.toInt()).toString()
         }
         h5 {
             +"총 개수: $totalCount"
         }
         val cpuList = if (index in 1..2) {
-            list.map {
-                it as PC
-                it.cpu
-            }.distinct().sorted()
+            var list = emptyList<String>()
+            transaction {
+                val rowList = PCTable.selectAll().toList().map {
+                    it[PCTable.cpu]
+                }
+                list = rowList
+            }//.distinct().sorted()
+            list.distinct().sorted()
         } else null
         insert(AddModalTemplate(index.toInt(), list.map { it.modelName }.distinct().sorted(), cpuList)) {}
         insert(ModalTemplate("filterModal")) {
