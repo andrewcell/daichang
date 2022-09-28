@@ -84,7 +84,7 @@ $(document).ready(() => {
     });
     $("#addModalPrintButton").on('click', () => { // If click print button in addModal
         const index = $('#inputIndex').val()
-        const number = $('#inputCabinetNumber').val()
+        const number = $('#inputId').val()
         window.open('/print/'+ index + '/' + number) // Open new window to /print/index/number. Number 123 PC will be /print/1/123
     });
     /*
@@ -127,5 +127,32 @@ $(document).ready(() => {
     }
     $("#printButton").click(() => { // If click print button in Index.
         $("#printForm").submit(); // Submit form in print card with hidden json value tag.
+    })
+    $("#spreadsheetCardImportButton").click(() => { // If click import button
+        $(".alert").remove(); // Remove all exists alerts
+        $("#spreadsheetCardImportButton").attr('disabled', true); // Disable button
+        $("#spreadsheetCardExportButton").attr('disabled', true); // Disable export button too. Just in case.
+        $("#spreadsheetCardImportButton").text('들여오는 중'); //
+        const formData = new FormData()
+        const file = $("#spreadsheetImportFile")[0].files[0] // File stores in array
+        formData.append("file", file)
+        $.ajax({
+            type: "POST",
+            url: "/import",
+            processData: false,
+            contentType: false,
+            data: formData,
+            success: (res) => {
+                const response = JSON.parse(res) // {"data": MESSAGE_FROM_SERVER, success: it_is_successful?}
+                let alertColor = "success"
+                if (response.success == false) { // if received as failed.
+                    alertColor = "danger"
+                }
+                $("#app").prepend("<div class=\"alert alert-" + alertColor + "\" role=\"alert\">" + response.data + "</div>") // Add alert for message.
+                $("#spreadsheetCardImportButton").attr('disabled', false); // re-enable button
+                $("#spreadsheetCardExportButton").attr('disabled', false); // re-enable button
+                $("#spreadsheetCardImportButton").text('들여오기');
+            }
+        })
     })
 })

@@ -1,35 +1,43 @@
 package com.example
 
+import com.example.database.DatabaseHandler
 import org.apache.poi.ss.SpreadsheetVersion
 import org.apache.poi.ss.usermodel.CellCopyPolicy
+import org.apache.poi.ss.usermodel.Sheet
 import org.apache.poi.ss.util.AreaReference
 import org.apache.poi.ss.util.CellReference
+import org.apache.poi.xssf.usermodel.XSSFSheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.InputStream
+import java.io.OutputStream
 import java.time.LocalDate
 import java.time.ZoneId
 
 object WorkSheetHandler {
-    private val workbook = XSSFWorkbook(FileInputStream(Constants.worksheetPath))
-    private val pc = readPC().toMutableList()
-    private val laptop = readPC(true).toMutableList()
-    private val monitor = readMonitor().toMutableList()
-
-    fun getAll(): Array<List<Equipment>> {
-        return arrayOf(pc.toList(), laptop.toList(), monitor.toList())
+    fun import(input: InputStream): String? {
+        try {
+            val workbook = XSSFWorkbook(input)
+            val pcList = readPC(workbook.getSheet("PC"))
+            val laptopList = readPC(workbook.getSheet("노트북"))
+            val monitorList = readMonitor(workbook.getSheet("모니터"))
+            arrayOf(pcList, laptopList, monitorList).forEachIndexed { index, list ->
+                list.forEach {
+                    DatabaseHandler.insertNewEquipment(index + 1, it)
+                }
+            }
+            workbook.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return e.message
+        }
+        return null
     }
 
-    fun getList(index: Int): List<Equipment> = when (index) {
-        1 -> pc
-        2 -> laptop
-        3 -> monitor
-        else -> emptyList()
-    }.toList()
-
-    private fun readPC(laptop: Boolean = false): List<PC> {
+    private fun readPC(sheet: XSSFSheet): List<PC> {
+        val laptop = sheet.sheetName == "노트북"
         return buildList {
-            val sheet = workbook.getSheet(if (laptop) "노트북" else "PC")
             sheet.forEach { row ->
                 if (row.rowNum == 0) return@forEach
                 try {
@@ -60,9 +68,8 @@ object WorkSheetHandler {
         }
     }
 
-    private fun readMonitor(): List<Monitor> {
+    private fun readMonitor(sheet: XSSFSheet): List<Monitor> {
         return buildList {
-            val sheet = workbook.getSheet("모니터")
             sheet.forEach { row ->
                 if (row.rowNum == 0) return@forEach
                 try {
@@ -90,147 +97,15 @@ object WorkSheetHandler {
         }
     }
 
-    fun close() {
-        workbook.close()
-    }
-
     private fun teraByteToGigaByte(raw: String): Int {
-        //stringCellValue.dropLast(2).trim().toShortOrNull() ?: 0,
-        //val prefix = raw.takeLast(2)
         val value = raw.dropLast(2).trim().toIntOrNull() ?: 0
         return if (raw.endsWith("TB")) {
             return value * 1024
         } else value
     }
 
-    fun insertNewEquipment(index: Int, equipment: Equipment, forceInsert: Boolean = false) {
-        when (index) {
-            1, 2 -> {
-                equipment as PC
-            }
-            3 -> {
-                equipment as Monitor
-            }
-            else -> return
-        }
-        try {
-            val sheetName = getSheetName(index)
-            val sheet = workbook.getSheet(sheetName)
-            val table = sheet.tables.firstOrNull() ?: return
-            val lastRow = table.endCellReference
-            val lastRowNum = lastRow.row
-            val exists = sheet.find { it.rowNum != 0 && it.getCell(0)?.numericCellValue?.toInt() == equipment.cabinetNumber }
-            val update = exists != null
-            val newRow = if (!update || forceInsert) {
-                sheet.createRow(lastRowNum + 1)
-            } else {
-                sheet.getRow(exists!!.rowNum)
-            }
-            if (!update || forceInsert) {
-                newRow.copyRowFrom(sheet.getRow(lastRowNum - 2), CellCopyPolicy())
-            }
-            newRow.getCell(0).setCellValue(equipment.cabinetNumber?.toDouble() ?: 0.0) // 순번
-            newRow.getCell(1).setCellValue(equipment.mgmtNumber) // 관리번호
-            newRow.getCell(2).setCellValue(equipment.modelName) // 모델명
-            newRow.getCell(3).setCellValue(equipment.mfrDate) // 제조일자
-            newRow.getCell(4).setCellValue(equipment.serialNumber) // SN
-            if (equipment is PC) {
-                newRow.getCell(5).setCellValue(equipment.cpu)
-                newRow.getCell(6).setCellValue(equipment.hdd.toString() + " GB")
-                newRow.getCell(7).setCellValue(equipment.ram.toString() + " GB")
-                newRow.getCell(8).setCellValue(equipment.OS)
-                if (index == 2 && equipment.inch != null) {
-                    newRow.getCell(9).setCellValue(equipment.inch.toDouble())
-                }
-            } else if (equipment is Monitor) {
-                newRow.getCell(5).setCellValue(equipment.ratio)
-                newRow.getCell(6).setCellValue(equipment.resolution)
-                newRow.getCell(7).setCellValue(equipment.inch.toDouble())
-                newRow.getCell(8).setCellValue(equipment.cable)
-            } else return
-            val columnAddition = if (index == 2) 1 else 0
-            newRow.getCell(9 + columnAddition).setCellValue(equipment.lastUser)
-            newRow.getCell(10 + columnAddition).setCellValue(equipment.importDate)
-            newRow.getCell(11 + columnAddition).setCellValue(equipment.status.value)
-            newRow.getCell(14 + columnAddition).setCellValue(equipment.memo)
-            if (!update || forceInsert) {
-                table.area = AreaReference(
-                    table.startCellReference,
-                    CellReference(lastRowNum + 1, table.endColIndex),
-                    SpreadsheetVersion.EXCEL2007
-                )
-            }
-        } catch (e: Exception) {
-            println(e.message)
-        } finally {
-            save()
-            when (index) {
-                1 -> pc.add(equipment as PC)
-                2 -> laptop.add(equipment as PC)
-                3 -> monitor.add(equipment as Monitor)
-            }
-        }
-    }
-
-    fun deleteEquipment(index: Int, cabinetNumber: Int, mgmtNumber: String, lastUser: String, modelName: String) {
-        if (cabinetNumber == -1 || index == -1) return
-        try {
-            val sheet = workbook.getSheet(getSheetName(index))
-            val existsRow = sheet.find {
-                it.rowNum != 0 && (it.getCell(0)?.numericCellValue?.toInt() == cabinetNumber)
-            } ?: return
-            val table = sheet.tables.firstOrNull() ?: return
-            val columnAddition = if (index == 2) 1 else 0
-            val existsMgmtNumber = existsRow.getCell(1).stringCellValue
-            val existsLastUser = existsRow.getCell(9 + columnAddition).stringCellValue
-            val existsModelName = existsRow.getCell(2).stringCellValue
-            if (existsLastUser != lastUser || existsMgmtNumber != mgmtNumber || existsModelName != modelName) return
-            val rowNumber = existsRow.rowNum
-            sheet.removeRow(existsRow)
-            sheet.shiftRows(rowNumber + 1, sheet.lastRowNum, -1)
-            table.area = AreaReference(
-                table.startCellReference,
-                CellReference(sheet.lastRowNum, table.endColIndex),
-                SpreadsheetVersion.EXCEL2007
-            )
-            sheet.getRow(table.endRowIndex)
-        } catch (e: Exception) {
-            println(e.message)
-        } finally {
-            //lastRow.rowStyle.borderTop = BorderStyle.THIN
-            //astRow.rowStyle = sheet.getRow(sheet.lastRowNum - 2).rowStyle
-            //sheet.removeRow(sheet.getRow(table.endRowIndex + 2))
-            save()
-            when (index) {
-                1 -> pc.removeIf { it.cabinetNumber == cabinetNumber }
-                2 -> laptop.removeIf { it.cabinetNumber == cabinetNumber }
-                3 -> monitor.removeIf { it.cabinetNumber == cabinetNumber }
-            }
-        }
-    }
-
-    private fun save() {
-        workbook.write(FileOutputStream(Constants.worksheetPath))
-    }
-
-    private fun getSheetName(index: Int) = when (index) {
-        1 -> "PC"
-        2 -> "노트북"
-        3 -> "모니터"
-        else -> null
-    }
-
-    fun getEmptyNumber(index: Int): Int {
-        val lst = when (index) {
-            1 -> pc
-            2 -> laptop
-            3 -> monitor
-            else -> emptyList()
-        }
-        val numbers = lst.mapNotNull { it.cabinetNumber }
-        for (i in 1..numbers.last() + 1) {
-            if (i !in numbers) return i
-        }
-        return 1
+    private fun save(): OutputStream? {
+        //TODO: Not implemented.
+        return null
     }
 }

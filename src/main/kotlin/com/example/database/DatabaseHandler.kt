@@ -15,7 +15,7 @@ object DatabaseHandler {
     private val pc: MutableList<PC>
     private val laptop: MutableList<PC>
     private val monitor: MutableList<Monitor>
-
+    var isBusy = false
     init {
         val pcList = mutableListOf<PC>()
         val laptopList = mutableListOf<PC>()
@@ -81,15 +81,6 @@ object DatabaseHandler {
         else -> emptyList()
     }.toList()
 
-    private fun teraByteToGigaByte(raw: String): Int {
-        //stringCellValue.dropLast(2).trim().toShortOrNull() ?: 0,
-        //val prefix = raw.takeLast(2)
-        val value = raw.dropLast(2).trim().toIntOrNull() ?: 0
-        return if (raw.endsWith("TB")) {
-            return value * 1024
-        } else value
-    }
-
     private fun insertNewMonitor(monitor: Monitor, equipId: Int, exists: Boolean) {
         transaction {
             fun insertToDB(iv: UpdateStatement? = null, k: InsertStatement<Number>? = null) {
@@ -122,7 +113,6 @@ object DatabaseHandler {
                 if (i != null) {
                     i[PCTable.id] = equipmentId
                     i[PCTable.equipmentId] = equipmentId
-                    //it[PCTable.equipmentId] = if (equipment.id == -1) equipmentId else equipment.id
                     i[PCTable.cpu] = pc.cpu
                     i[PCTable.hdd] = pc.hdd.toInt()
                     i[PCTable.ram] = pc.ram.toInt()
@@ -155,9 +145,11 @@ object DatabaseHandler {
         var equipId = -1
         try {
             transaction {
-                val existsEquipId = if (equipment.id != -1) {
+                /*val existsEquipId = if (equipment.id != -1) {
                     EquipmentTable.slice(EquipmentTable.id).select { EquipmentTable.id eq equipment.id }.firstOrNull()?.get(EquipmentTable.id)
-                } else null
+                } else null*/ // Disabled for prevent duplicate insert from spreadsheet import. Without it, Very poor performance.
+                // Check every equipment its exists. Very poor performance. Change to above if it feels too slow.
+                val existsEquipId = EquipmentTable.slice(EquipmentTable.id).select { (EquipmentTable.id eq equipment.id) or (EquipmentTable.mgmtNumber eq equipment.mgmtNumber) }.firstOrNull()?.get(EquipmentTable.id)
                 fun insertToDB(iv: UpdateStatement? = null, k: InsertStatement<Number>? = null) {
                     val i = iv ?: k
                     if (i != null) {
@@ -189,47 +181,6 @@ object DatabaseHandler {
                     insertNewMonitor(equipment, equipId, existsEquipId != null)
                 }
             }
-                /*
-                val equipmentId = EquipmentTable.upsert({ EquipmentTable.id eq equipment.id }) {
-                        /*if (equipment.id != -1) {
-                            it[id] = equipment.id
-                        }*/
-                        it[cabinetNumber] = equipment.cabinetNumber
-                        it[mgmtNumber] = equipment.mgmtNumber
-                        it[mfrDate] = equipment.mfrDate
-                        it[serialNumber] = equipment.serialNumber
-                        it[modelName] = equipment.modelName
-                        it[lastUser] = equipment.lastUser
-                        it[importDate] = equipment.importDate
-                        it[status] = equipment.status.value
-                        it[memo] = equipment.memo
-                }.resultedValues?.get(0)?.get(EquipmentTable.id) ?: throw (NullPointerException("Id not found. Update could be failed already."))
-                val insertedId = when (equipment) {
-                    is PC -> {
-                        PCTable.upsert({ PCTable.id eq equipmentId }) {
-                            it[id] = equipmentId
-                            it[PCTable.equipmentId] = equipmentId
-                            //it[PCTable.equipmentId] = if (equipment.id == -1) equipmentId else equipment.id
-                            it[cpu] = equipment.cpu
-                            it[hdd] = equipment.hdd.toInt()
-                            it[ram] = equipment.ram.toInt()
-                            it[os] = equipment.OS
-                            it[inch] = equipment.inch
-                        }.resultedValues?.firstOrNull()?.get(PCTable.id)?.value ?: throw NullPointerException("Id not found. Update could be failed already.")
-                    }
-
-                    is Monitor -> {
-                        MonitorTable.upsert({ MonitorTable.id eq equipmentId }) {
-
-                        }.resultedValues?.firstOrNull()?.get(MonitorTable.id)?.value ?: throw NullPointerException("Id not found. Update could be failed already.")
-                    }
-
-                    else -> {
-                        null
-                    }
-                }
-                nid = insertedId ?: throw NullPointerException("Id not found. Update could be failed already.")
-            }*/
         } catch (e: Exception) {
             println(e.printStackTrace())
         } finally {
@@ -281,28 +232,4 @@ object DatabaseHandler {
         }
         return 1
     }
-    /*
-        // The below code is just a copy-paste that should actually be in the lib
-        class BatchInsertUpdateOnDuplicate(table: Table, val onDupUpdate: List<Column<*>>) : BatchInsertStatement(table, false) {
-            override fun prepareSQL(transaction: Transaction): String {
-                val onUpdateSQL = if (onDupUpdate.isNotEmpty()) {
-                    " ON DUPLICATE KEY UPDATE " + onDupUpdate.joinToString { "${transaction.identity(it)}=VALUES(${transaction.identity(it)})" }
-                } else ""
-                return super.prepareSQL(transaction) + onUpdateSQL
-            }
-        }
-
-        fun <T : Table, E> T.batchInsertOnDuplicateKeyUpdate(data: List<E>, onDupUpdateColumns: List<Column<*>>, body: T.(BatchInsertUpdateOnDuplicate, E) -> Unit) {
-            data.
-            takeIf { it.isNotEmpty() }?.
-            let {
-                val insert = BatchInsertUpdateOnDuplicate(this, onDupUpdateColumns)
-                data.forEach {
-                    insert.addBatch()
-                    body(insert, it)
-                }
-                TransactionManager.current().exec(insert)
-            }
-        }*/
-
 }

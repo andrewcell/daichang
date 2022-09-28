@@ -7,6 +7,7 @@ import com.example.templates.LabelTemplate
 import com.example.templates.LayoutTemplate
 import com.example.templates.TableTemplate
 import io.ktor.http.*
+import io.ktor.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.html.*
 import io.ktor.server.http.content.*
@@ -225,6 +226,29 @@ fun Application.configureRouting() {
                     DatabaseHandler.getList(2).filter { laptop.contains(it.id) } +
                     DatabaseHandler.getList(3).filter { monitor.contains(it.id) }
             call.respondHtmlTemplate(LabelTemplate(targetList)) { }
+        }
+
+        post("/import") {
+            val multipart = call.receiveMultipart()
+            multipart.forEachPart { part ->
+                if (part is PartData.FileItem) {
+                    part.streamProvider().use {
+                        if (DatabaseHandler.isBusy) {
+                            call.respond("{\"data\": \"다른 작업이 진행중입니다. 잠시후 다시 시도해주세요.\", \"success\": false}")
+                        }
+                        DatabaseHandler.isBusy = true
+                        val result = WorkSheetHandler.import(it)
+                        DatabaseHandler.isBusy = false
+                        val message = if (result == null) {
+                            "들여오기 성공"
+                        } else "에러가 발생하였습니다: $result"
+                        call.respond("{\"data\": \"$message\", \"success\": ${result == null}}")
+
+                    }
+                }
+                part.dispose()
+            }
+            call.respond("{\"data\": \"에러가 발생하였습니다: 잘못된 요청\", \"success\": false}")
         }
 
         // Static plugin. Try to access `/static/index.html`

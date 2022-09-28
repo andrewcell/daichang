@@ -55,6 +55,7 @@ class LayoutTemplate : Template<HTML> {
                 }
             }
             div("container-fluid") {
+                id = "app"
                 insert(content)
             }
         }
