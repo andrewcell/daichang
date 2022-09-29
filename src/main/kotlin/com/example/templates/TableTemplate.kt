@@ -142,13 +142,11 @@ class TableTemplate(private val index: Byte) : Template<FlowContent> {
             +"총 개수: $totalCount"
         }
         val cpuList = if (index in 1..2) {
-            var list = emptyList<String>()
-            transaction {
-                val rowList = PCTable.selectAll().toList().map {
-                    it[PCTable.cpu]
-                }
-                list = rowList
-            }//.distinct().sorted()
+            val list = DatabaseHandler.getList(index.toInt()).mapNotNull {
+                if (it is PC)
+                    it.cpu
+                else null
+            }
             list.distinct().sorted()
         } else null
         insert(AddModalTemplate(index.toInt(), list.map { it.modelName }.distinct().sorted(), cpuList)) {}
