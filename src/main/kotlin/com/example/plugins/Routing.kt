@@ -111,11 +111,11 @@ fun Application.configureRouting() {
         post("/delete") {
             val parameters = call.receiveParameters()
             val index = parameters["inputIndex"]?.toIntOrNull() ?: -1
-            val id = parameters["inputId"]?.toIntOrNull() ?: -1
+            //val id = parameters["inputId"]?.toIntOrNull() ?: -1
             val mgmtNumber = parameters["inputMgmtNumber"] ?: ""
             val lastUser = parameters["inputLastUser"] ?: ""
             val modelName = parameters["inputModelName"] ?: ""
-            DatabaseHandler.deleteEquipment(index, id, mgmtNumber, lastUser, modelName)
+            DatabaseHandler.deleteEquipment(index, mgmtNumber, lastUser, modelName)
             call.respondRedirect(when (index) {
                 1 -> "/pc"
                 2 -> "/laptop"
@@ -200,15 +200,15 @@ fun Application.configureRouting() {
             call.respond(Json.encodeToString(filteredList.map { it.cabinetNumber }))
         }
 
-        get("/print/{index}/{id}") {
+        get("/print/{index}/{mgmtNumber}") {
             val index = call.parameters["index"]?.toIntOrNull()
-            val id = call.parameters["id"]?.toIntOrNull()
-            if (index == null || id == null) {
+            val mgmtNumber = call.parameters["mgmtNumber"]
+            if (index == null || mgmtNumber == null) {
                 call.respond(HttpStatusCode.BadRequest)
                 return@get
             }
             val list = DatabaseHandler.getList(index)
-            val found = list.find { it.id == id } ?: return@get
+            val found = list.find { it.mgmtNumber == mgmtNumber } ?: return@get
             call.respondHtmlTemplate(LabelTemplate(listOf(found))) { }
             //call.respond(LabelTableTemplate())
        //     println(number + index)
@@ -222,9 +222,9 @@ fun Application.configureRouting() {
             val pc = data.pc ?: emptyList()
             val laptop = data.laptop ?: emptyList()
             val monitor = data.monitor ?: emptyList()
-            val targetList = DatabaseHandler.getList(1).filter { pc.contains(it.id) } +
-                    DatabaseHandler.getList(2).filter { laptop.contains(it.id) } +
-                    DatabaseHandler.getList(3).filter { monitor.contains(it.id) }
+            val targetList = DatabaseHandler.getList(1).filter { pc.contains(it.mgmtNumber) } +
+                    DatabaseHandler.getList(2).filter { laptop.contains(it.mgmtNumber) } +
+                    DatabaseHandler.getList(3).filter { monitor.contains(it.mgmtNumber) }
             call.respondHtmlTemplate(LabelTemplate(targetList)) { }
         }
 

@@ -143,6 +143,7 @@ object DatabaseHandler {
             else -> return
         }
         var equipId = -1
+        var updated = false
         try {
             transaction {
                 /*val existsEquipId = if (equipment.id != -1) {
@@ -168,6 +169,7 @@ object DatabaseHandler {
                     EquipmentTable.update({ EquipmentTable.id eq existsEquipId }) {
                         insertToDB(it)
                     }
+                    updated = true
                     existsEquipId
                 } else {
                     EquipmentTable.insert {
@@ -185,6 +187,7 @@ object DatabaseHandler {
             println(e.printStackTrace())
         } finally {
             equipment.id = equipId
+            if (updated) removeFromList(index, equipment.id)
             when (index) {
                 1 -> pc.add(equipment as PC)
                 2 -> laptop.add(equipment as PC)
@@ -193,12 +196,12 @@ object DatabaseHandler {
         }
     }
 
-    fun deleteEquipment(index: Int, id: Int, mgmtNumber: String, lastUser: String, modelName: String) {
-        if (id == -1 || index == -1) return
+    fun deleteEquipment(index: Int, mgmtNumber: String, lastUser: String, modelName: String) {
+        if (index == -1) return
         try {
             transaction {
                 EquipmentTable.deleteWhere {
-                    (EquipmentTable.id eq id) and
+                    //(EquipmentTable.id eq id) and
                     (EquipmentTable.mgmtNumber eq mgmtNumber) and
                     (EquipmentTable.lastUser eq lastUser) and
                     (EquipmentTable.modelName eq modelName)
@@ -208,10 +211,18 @@ object DatabaseHandler {
             println(e.message)
         } finally {
             when (index) {
-                1 -> pc.removeIf { it.id == id }
-                2 -> laptop.removeIf { it.id == id }
-                3 -> monitor.removeIf { it.id == id }
+                1 -> pc.removeIf { it.mgmtNumber == mgmtNumber }
+                2 -> laptop.removeIf { it.mgmtNumber == mgmtNumber }
+                3 -> monitor.removeIf { it.mgmtNumber == mgmtNumber }
             }
+        }
+    }
+
+    private fun removeFromList(index: Int, id: Int) {
+        when (index) {
+            1 -> pc.removeIf { it.id == id }
+            2 -> laptop.removeIf { it.id == id }
+            3-> monitor.removeIf { it.id == id }
         }
     }
 

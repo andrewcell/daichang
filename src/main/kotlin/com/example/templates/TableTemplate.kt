@@ -47,10 +47,11 @@ class TableTemplate(private val index: Byte) : Template<FlowContent> {
                     tr {
                         attributes["data-bs-toggle"] = "modal"
                         attributes["data-bs-target"] = "#addModal"
-                        td {
+                        attributes["data-id"] = it.id.toString()
+                        /*td {
                             attributes[dataInfoAttr] = "id"
                             +it.id.toString()
-                        }
+                        }*/
                         td {
                             attributes[dataInfoAttr] = "cabinetNumber"
                             +it.cabinetNumber.toString()

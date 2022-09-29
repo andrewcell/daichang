@@ -24,7 +24,7 @@ class PrintSelectionModalTemplate(
                 div("list-group") {
                     list.sortedByDescending { it.importDate }.forEach {
                         a("#", classes = "list-group-item list-group-item-action") {
-                            attributes["data-info"] = it.id.toString()
+                            attributes["data-info"] = it.mgmtNumber
                             div("d-flex w-100 justify-content-between") {
                                 h6 { +"${it.cabinetNumber} - ${it.mgmtNumber}" }
                             }

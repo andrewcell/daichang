@@ -31,6 +31,8 @@ $(document).ready(() => {
     $("tr").on('click', event => { // If click row of table clicked.
         $("#addModalDeleteButton").show(); // Make visible delete button. 
         const selected = $(event.target)[0].parentElement.children; // Selected row
+        const id = $(event.target)[0].parentElement.attributes["data-id"].value;
+        $("#inputId").val(id);
         Array.prototype.forEach.call($("#addModal .modal-body form")[0], (input) => { // ForEach all of input in addModal
             if (input.id === "inputIndex") { // If inputIndex is selected, skip it. It is use for identification of what equipment is.
                 return;
@@ -84,8 +86,8 @@ $(document).ready(() => {
     });
     $("#addModalPrintButton").on('click', () => { // If click print button in addModal
         const index = $('#inputIndex').val()
-        const number = $('#inputId').val()
-        window.open('/print/'+ index + '/' + number) // Open new window to /print/index/number. Number 123 PC will be /print/1/123
+        const number = $('#inputMgmtNumber').val()
+        window.open('/print/'+ index + '/' + number) // Open new window to /print/index/number. Number 123 PC will be /print/1/EQ20210812333
     });
     /*
         Index 
@@ -111,9 +113,9 @@ $(document).ready(() => {
         let list = []
         const rawPayload = JSON.parse($("#printPayload").val()) // Print form in Print card has hidden input tag for store raw json data to send post to the server.
         Array.prototype.forEach.call($(listOfSelected), v => {
-            const number = v.attributes["data-info"] // Every list-item has data-info attribute to store number of equipment.
+            const number = v.attributes["data-info"] // Every list-item has data-info attribute to store mgmtNumber of equipment.
             if (number != null) {
-                list.push(number.value * 1) // push number to list.
+                list.push(number.value) // push mgmtNumber to list.
             }
         });
         rawPayload[id] = list // if is PC, rawPayload["pc"] = [1, 2, 3]. In json, {"pc": [1, 2, 3]}
