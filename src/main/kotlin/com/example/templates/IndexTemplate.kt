@@ -104,7 +104,9 @@ class IndexTemplate(private val list: Array<List<Equipment>>) : Template<FlowCon
                                             id = "spreadsheetCardImportButton"
                                             +"들여오기"
                                         }
-                                        button(type = ButtonType.button, classes = "btn btn-primary") {
+                                        a(classes = "btn btn-primary", href = "/export") {
+                                            target = "_blank"
+                                            role = "button"
                                             id = "spreadsheetCardExportButton"
                                             +"내보내기"
                                         }

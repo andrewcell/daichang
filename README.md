@@ -7,6 +7,13 @@ sh-3.14$ cp build/distributions/daichang-*.zip .
 sh-3.14$ unzip daichang-*.zip
 sh-3.14$ daichang-*/bin/daichang-*.sh
 ```
+## Environment Variables
+Daichang uses environment variable to configure server.
+ - ```daichang.port``` Listening port
+ - ```daichang.host``` Listening host
+ - ```db_url``` Database connect url
+ - ```db_user```Database User name
+ - ```db_pass```Database User password
 ## Phase 1 (Branched)
  - [x] Spreadsheet as database
  - [x] Add, Modify, Remove the entry

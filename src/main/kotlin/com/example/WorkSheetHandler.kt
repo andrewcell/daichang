@@ -2,20 +2,26 @@ package com.example
 
 import com.example.database.DatabaseHandler
 import org.apache.poi.ss.SpreadsheetVersion
+import org.apache.poi.ss.format.CellDateFormatter
 import org.apache.poi.ss.usermodel.CellCopyPolicy
 import org.apache.poi.ss.usermodel.Sheet
+import org.apache.poi.ss.usermodel.TableStyleInfo
 import org.apache.poi.ss.util.AreaReference
 import org.apache.poi.ss.util.CellReference
+import org.apache.poi.xssf.usermodel.XSSFDataFormat
 import org.apache.poi.xssf.usermodel.XSSFSheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
+import java.io.ByteArrayOutputStream
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.OutputStream
 import java.time.LocalDate
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 object WorkSheetHandler {
+    var lock = false
     fun import(input: InputStream): String? {
         try {
             val workbook = XSSFWorkbook(input)
@@ -104,8 +110,73 @@ object WorkSheetHandler {
         } else value
     }
 
-    private fun save(): OutputStream? {
-        //TODO: Not implemented.
-        return null
+
+    fun export(): ByteArrayOutputStream? {
+        return try {
+            val workbook = XSSFWorkbook()
+            val list = DatabaseHandler.getAll()
+            val sheetNames = arrayOf("PC", "노트북", "모니터")
+            val dateFormat = workbook.createCellStyle()
+            dateFormat.dataFormat = workbook.creationHelper.createDataFormat().getFormat("yyyy-MM-dd")
+            list.forEachIndexed { equipIndex, equipList ->
+                val sheet = workbook.createSheet(sheetNames[equipIndex])
+                val colLabelRow = sheet.createRow(0)
+                val colList = when (equipIndex + 1) {
+                    1 -> Constants.colsPC
+                    2 -> Constants.colsLaptop
+                    3 -> Constants.colsMonitor
+                    else -> return null
+                }
+                for((index, col) in colList.withIndex()) {
+                    colLabelRow.createCell(index).setCellValue(col)
+                }
+                equipList.forEachIndexed { rowIndex, equipment ->
+                    val newRow = sheet.createRow(rowIndex + 1)
+                    newRow.createCell(0).setCellValue(equipment.cabinetNumber?.toDouble() ?: 0.0) // 순번
+                    newRow.createCell(1).setCellValue(equipment.mgmtNumber) // 관리번호
+                    newRow.createCell(2).setCellValue(equipment.modelName) // 모델명
+                    val mfrDateCell = newRow.createCell(3)
+                    mfrDateCell.setCellValue(equipment.mfrDate) // 제조일자
+                    mfrDateCell.cellStyle = dateFormat
+                    newRow.createCell(4).setCellValue(equipment.serialNumber) // SN
+                    if (equipment is PC) {
+                        newRow.createCell(5).setCellValue(equipment.cpu)
+                        newRow.createCell(6).setCellValue(equipment.hdd.toString() + " GB")
+                        newRow.createCell(7).setCellValue(equipment.ram.toString() + " GB")
+                        newRow.createCell(8).setCellValue(equipment.OS)
+                        if (equipIndex + 1 == 2 && equipment.inch != null) {
+                            newRow.createCell(9).setCellValue(equipment.inch.toDouble())
+                        }
+                    } else if (equipment is Monitor) {
+                        newRow.createCell(5).setCellValue(equipment.ratio)
+                        newRow.createCell(6).setCellValue(equipment.resolution)
+                        newRow.createCell(7).setCellValue(equipment.inch.toDouble())
+                        newRow.createCell(8).setCellValue(equipment.cable)
+                    } else return null
+                    val columnAddition = if (equipIndex + 1 == 2) 1 else 0
+                    newRow.createCell(9 + columnAddition).setCellValue(equipment.lastUser)
+                    val importDateCell = newRow.createCell(10 + columnAddition)
+                    importDateCell.setCellValue(equipment.importDate)
+                    importDateCell.cellStyle = dateFormat
+                    newRow.createCell(11 + columnAddition).setCellValue(equipment.status.value)
+                    newRow.createCell(12 + columnAddition).setCellValue(equipment.memo)
+                }
+                val table = sheet.createTable(AreaReference(
+                    CellReference(0, 0),
+                    CellReference(equipList.size,  colList.size - 1),
+                    SpreadsheetVersion.EXCEL2007))
+                colList.forEachIndexed { index, _ ->
+                    sheet.autoSizeColumn(index)
+                }
+            }
+
+            val os = ByteArrayOutputStream()
+            workbook.write(os)
+            //TODO: Not implemented.
+            os
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
     }
 }

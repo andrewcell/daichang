@@ -251,6 +251,20 @@ fun Application.configureRouting() {
             call.respond("{\"data\": \"에러가 발생하였습니다: 잘못된 요청\", \"success\": false}")
         }
 
+        get("/export") {
+            if (WorkSheetHandler.lock) {
+                call.respond("Server is busy. Try again later.")
+            }
+            WorkSheetHandler.lock = true
+            val stream = WorkSheetHandler.export()
+            if (stream == null) {
+                call.respond(HttpStatusCode.InternalServerError)
+                return@get
+            }
+            WorkSheetHandler.lock = false
+            call.respondBytes(stream.toByteArray(), contentType = ContentType.parse("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+        }
+
         // Static plugin. Try to access `/static/index.html`
         static("/static") {
             resources("static")
