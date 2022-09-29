@@ -12,7 +12,10 @@ import org.jetbrains.exposed.sql.transactions.transaction
 fun main() {
     val port = System.getenv("daichang.port")?.toIntOrNull() ?: 8080
     val host = System.getenv("daichang.host") ?: "127.0.0.1"
-    Database.connect("jdbc:mysql://192.168.56.101:3306/test", driver = "com.mysql.cj.jdbc.Driver", user = "test", password = "test1234")
+    val dbUrl = System.getenv("db_url") ?: ""
+    val dbUser = System.getenv("db_user") ?:""
+    val dbPass = System.getenv("db_pass") ?: ""
+    Database.connect(dbUrl, driver = "com.mysql.cj.jdbc.Driver", user = dbUser, password = dbPass)
     transaction {
         addLogger(Slf4jSqlDebugLogger)
         SchemaUtils.createMissingTablesAndColumns(EquipmentTable, PCTable, MonitorTable, withLogs = true)
