@@ -1,9 +1,7 @@
 package com.example.database
 
-import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
-import org.jetbrains.exposed.sql.Table
 
 object PCTable : IntIdTable("pcs") {
     val equipmentId = reference("equipmentId", EquipmentTable.id, onDelete = ReferenceOption.CASCADE)

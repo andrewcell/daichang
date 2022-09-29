@@ -2,9 +2,7 @@ package com.example.templates
 
 import com.example.Equipment
 import io.ktor.server.html.*
-import kotlinx.html.FlowContent
 import kotlinx.html.*
-import java.text.SimpleDateFormat
 import java.time.format.DateTimeFormatter
 
 class PrintSelectionModalTemplate(

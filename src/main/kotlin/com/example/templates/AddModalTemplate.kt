@@ -1,6 +1,5 @@
 package com.example.templates
 
-import com.example.Constants
 import io.ktor.server.html.*
 import kotlinx.html.*
 import java.text.SimpleDateFormat

@@ -2,12 +2,8 @@ package com.example.templates
 
 import com.example.*
 import com.example.database.DatabaseHandler
-import com.example.database.PCTable
 import io.ktor.server.html.*
 import kotlinx.html.*
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
-import java.text.SimpleDateFormat
 import java.time.format.DateTimeFormatter
 
 class TableTemplate(private val index: Byte) : Template<FlowContent> {
