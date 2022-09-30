@@ -33,7 +33,7 @@ Daichang uses environment variable to configure server.
  - [x] Initialize Git (09.27.2022.)
  - [x] Exposed SQL, data will be save into DBMS (09.28.2022.)
  - [x] Import, export to spreadsheet file (09.30.2022.)
- - [ ] Import existing datas from ERP, auto-filling from them
+ - [ ] Import existing data from ERP, autofill form from them
  - [ ] Advanced Filtering. Almost infinite Filter items
  - [ ] Optimize source codes
  - [ ] Full comments into source code. Implement JavaDoc (Dokka)
