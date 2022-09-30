@@ -20,7 +20,7 @@ object DatabaseHandler {
         var monitorList = emptyList<Monitor>()
 
         transaction {
-            EquipmentTable.join(PCTable, JoinType.INNER).selectAll().forEach {
+            (EquipmentTable innerJoin PCTable).select { EquipmentTable.id eq PCTable.equipmentId }.forEach {
                 val inch = it[PCTable.inch]
                 val pc = PC(
                     id = it[EquipmentTable.id],
@@ -30,7 +30,7 @@ object DatabaseHandler {
                     mfrDate = it[EquipmentTable.mfrDate],
                     serialNumber = it[EquipmentTable.serialNumber],
                     cpu = it[PCTable.cpu],
-                    hdd = it[PCTable.hdd].toShort(),
+                    hdd = it[PCTable.hdd],
                     ram = it[PCTable.ram].toFloat(),
                     OS = it[PCTable.os],
                     inch = inch,
@@ -44,7 +44,7 @@ object DatabaseHandler {
                     laptopList.add(pc)
                 } else pcList.add(pc)
             }
-            monitorList = EquipmentTable.innerJoin(MonitorTable).selectAll().groupBy(EquipmentTable.id).map {
+            monitorList =(EquipmentTable innerJoin MonitorTable).select { EquipmentTable.id eq MonitorTable.equipmentId }.map {
                 Monitor(
                     id = it[EquipmentTable.id],
                     cabinetNumber = it[EquipmentTable.cabinetNumber] ?: -1,
@@ -84,7 +84,7 @@ object DatabaseHandler {
             fun insertToDB(iv: UpdateStatement? = null, k: InsertStatement<Number>? = null) {
                 val i = iv ?: k
                 if (i != null) {
-                    i[MonitorTable.id] = equipId
+                  //  i[MonitorTable.id] = equipId
                     i[MonitorTable.equipmentId] = equipId
                     i[MonitorTable.ratio] = monitor.ratio
                     i[MonitorTable.resolution] = monitor.resolution
@@ -109,7 +109,7 @@ object DatabaseHandler {
             fun insertToDB(iv: UpdateStatement? = null, k: InsertStatement<Number>? = null) {
                 val i = iv ?: k
                 if (i != null) {
-                    i[PCTable.id] = equipmentId
+                   // i[PCTable.id] = equipmentId
                     i[PCTable.equipmentId] = equipmentId
                     i[PCTable.cpu] = pc.cpu
                     i[PCTable.hdd] = pc.hdd.toInt()
@@ -148,7 +148,7 @@ object DatabaseHandler {
                     EquipmentTable.slice(EquipmentTable.id).select { EquipmentTable.id eq equipment.id }.firstOrNull()?.get(EquipmentTable.id)
                 } else null*/ // Disabled for prevent duplicate insert from spreadsheet import. Without it, Very poor performance.
                 // Check every equipment its exists. Very poor performance. Change to above if it feels too slow.
-                val existsEquipId = EquipmentTable.slice(EquipmentTable.id).select { (EquipmentTable.id eq equipment.id) or (EquipmentTable.mgmtNumber eq equipment.mgmtNumber) }.firstOrNull()?.get(EquipmentTable.id)
+                val existsEquipId = EquipmentTable.slice(EquipmentTable.id).select { EquipmentTable.id eq equipment.id }.firstOrNull()?.get(EquipmentTable.id)
                 fun insertToDB(iv: UpdateStatement? = null, k: InsertStatement<Number>? = null) {
                     val i = iv ?: k
                     if (i != null) {

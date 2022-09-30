@@ -47,7 +47,7 @@ object WorkSheetHandler {
                         mfrDate = LocalDate.ofInstant(row.getCell(3).dateCellValue.toInstant(), ZoneId.systemDefault()),
                         serialNumber = row.getCell(4).stringCellValue,
                         cpu = row.getCell(5).stringCellValue,
-                        hdd = teraByteToGigaByte(row.getCell(6).stringCellValue).toShort(),
+                        hdd = teraByteToGigaByte(row.getCell(6).stringCellValue),
                         ram = row.getCell(7).stringCellValue.replace("GB", "").trim().toFloatOrNull() ?: 0.0f,
                         OS = row.getCell(8).stringCellValue,
                         lastUser = row.getCell(if (laptop) 10 else 9).stringCellValue,
@@ -156,8 +156,8 @@ object WorkSheetHandler {
                     CellReference(0, 0),
                     CellReference(equipList.size,  colList.size - 1),
                     SpreadsheetVersion.EXCEL2007))
-                colList.forEachIndexed { index, _ ->
-                    sheet.autoSizeColumn(index)
+                table.columns.forEach {
+                    sheet.autoSizeColumn(it.columnIndex)
                 }
             }
 

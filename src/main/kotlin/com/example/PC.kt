@@ -1,7 +1,6 @@
 package com.example
 
 import java.time.LocalDate
-import java.util.Date
 
 data class PC(
     override var id: Int,
@@ -11,7 +10,7 @@ data class PC(
     override val mfrDate: LocalDate,
     override val serialNumber: String,
     val cpu: String,
-    val hdd: Short,
+    val hdd: Int,
     val ram: Float,
     val OS: String,
     val inch: Float? = null,

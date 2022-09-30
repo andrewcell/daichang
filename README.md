@@ -9,8 +9,8 @@ sh-3.14$ daichang-*/bin/daichang-*.sh
 ```
 ## Environment Variables
 Daichang uses environment variable to configure server.
- - ```daichang.port``` Listening port
- - ```daichang.host``` Listening host
+ - ```daichang_port``` Listening port
+ - ```daichang_host``` Listening host
  - ```db_url``` Database connect url
  - ```db_user```Database User name
  - ```db_pass```Database User password

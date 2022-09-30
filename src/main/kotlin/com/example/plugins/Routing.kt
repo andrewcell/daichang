@@ -83,7 +83,7 @@ fun Application.configureRouting() {
             val memo = parameters["inputMemo"] ?: ""
             if (index in 1..2) {
                 val cpu = parameters["inputCPU"] ?: ""
-                val hdd = parameters["inputHDD"]?.toShortOrNull() ?: 0
+                val hdd = parameters["inputHDD"]?.toIntOrNull() ?: 0
                 val ram = parameters["inputRAM"]?.toFloatOrNull() ?: 0.0f
                 val os = parameters["inputOS"] ?: ""
                 val inch = if (index == 2) parameters["inputInch"]?.toFloatOrNull() else null
