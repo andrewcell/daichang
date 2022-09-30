@@ -7,6 +7,12 @@ sh-3.14$ cp build/distributions/daichang-*.zip .
 sh-3.14$ unzip daichang-*.zip
 sh-3.14$ daichang-*/bin/daichang-*.sh
 ```
+## Troubleshooting
+In Linux error might occur if fontconfig library is not installed when exporting to spreadsheet file.
+```shell
+[user@localhost ~]$ dnf install fontconfig
+```
+Install fontconfig or libfontconfig to prevent errors.
 ## Environment Variables
 Daichang uses environment variable to configure server.
  - ```daichang_port``` Listening port
