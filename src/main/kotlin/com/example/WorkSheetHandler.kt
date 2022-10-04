@@ -13,6 +13,7 @@ import java.time.ZoneId
 
 object WorkSheetHandler {
     var lock = false
+
     fun import(input: InputStream): String? {
         try {
             val workbook = XSSFWorkbook(input)
@@ -27,6 +28,39 @@ object WorkSheetHandler {
             workbook.close()
         } catch (e: Exception) {
             e.printStackTrace()
+            return e.message
+        }
+        return null
+    }
+
+    fun importERPData(input: InputStream): String? {
+        try {
+            val workbook = XSSFWorkbook(input)
+            val sheet = workbook.first()
+            val value = buildList<List<String>> {
+                sheet.forEach { row ->
+                    if (row.rowNum == sheet.lastRowNum) return@forEach
+                    add(buildList {
+                        if (row.rowNum == 0) return@forEach
+                        val index = when (row.getCell(3).stringCellValue ?: "") {
+                            "데스크탑" -> 1
+                            "노트북" -> 2
+                            "모니터" -> 3
+                            else -> -1
+                        }
+                        add(index.toString())
+                        add(row.getCell(0).stringCellValue) // Mgmt Number
+                        add(row.getCell(1).stringCellValue) // Model Name
+                        add(row.getCell(2).stringCellValue) // serialnumber
+                        add(row.getCell(4).stringCellValue) // CPU or Cable
+                        add(row.getCell(5).stringCellValue) // RAM or inch
+                        add(row.getCell(6).stringCellValue) // HARD or Power
+                        add(row.getCell(7).stringCellValue) // mfrDate
+                    })
+                }
+            }
+            DatabaseHandler.importERP(value)
+        } catch (e: Exception) {
             return e.message
         }
         return null

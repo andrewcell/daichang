@@ -133,14 +133,14 @@ $(document).ready(() => {
     $("#spreadsheetCardImportButton").click(() => { // If click import button
         $(".alert").remove(); // Remove all exists alerts
         $("#spreadsheetCardImportButton").attr('disabled', true); // Disable button
-        $("#spreadsheetCardExportButton").attr('disabled', true); // Disable export button too. Just in case.
+        $("#spreadsheetCardCleanButton").attr('disabled', true); // Disable export button too. Just in case.
         $("#spreadsheetCardImportButton").text('들여오는 중'); //
         const formData = new FormData()
         const file = $("#spreadsheetImportFile")[0].files[0] // File stores in array
         formData.append("file", file)
         $.ajax({
             type: "POST",
-            url: "/import",
+            url: $("#spreadsheetCardImportForm").attr("action"),
             processData: false,
             contentType: false,
             data: formData,

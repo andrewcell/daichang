@@ -241,4 +241,20 @@ object DatabaseHandler {
         }
         return 1
     }
+
+    fun importERP(list: List<List<String>>) {
+        transaction {
+            //ERPDataTable.deleteAll()
+            ERPDataTable.batchInsert(list) { eq ->
+                this[ERPDataTable.index] = eq[0].toIntOrNull() ?: return@batchInsert
+                this[ERPDataTable.mgmtNumber] = eq[1]
+                this[ERPDataTable.modelName] = eq[2]
+                this[ERPDataTable.serialNumber] = eq[3]
+                this[ERPDataTable.var1] = eq[4]
+                this[ERPDataTable.var2] = eq[5]
+                this[ERPDataTable.var3] = eq[6]
+                this[ERPDataTable.mfrDate] = eq[7]
+            }
+        }
+    }
 }

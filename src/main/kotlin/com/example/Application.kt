@@ -1,5 +1,6 @@
 package com.example
 
+import com.example.database.ERPDataTable
 import com.example.database.EquipmentTable
 import com.example.database.MonitorTable
 import com.example.database.PCTable
@@ -22,7 +23,7 @@ fun main() {
     Database.connect(dbUrl, driver = "com.mysql.cj.jdbc.Driver", user = dbUser, password = dbPass)
     transaction {
         addLogger(Slf4jSqlDebugLogger)
-        SchemaUtils.createMissingTablesAndColumns(EquipmentTable, PCTable, MonitorTable, withLogs = true)
+        SchemaUtils.createMissingTablesAndColumns(EquipmentTable, PCTable, MonitorTable, ERPDataTable, withLogs = true)
         embeddedServer(
             Netty,
             port = port,
