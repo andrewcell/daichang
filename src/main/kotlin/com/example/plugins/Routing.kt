@@ -292,6 +292,7 @@ fun Application.configureRouting() {
                 erpData.var2 = erpData.var2.trim().dropLast(2)
             } else if (erpData.index == 3) {
                 val inch = erpData.var2.take(2).toIntOrNull() ?: 24
+                erpData.var1 = erpData.var1.replace("혼용","").replace("가능", "").trim()
                 erpData.var2 = inch.toString()
                 erpData.var4 = when (inch) {
                     in 17..19 -> "1280x1024"
