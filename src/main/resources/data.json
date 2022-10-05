@@ -1,20 +1,52 @@
 {
   "modelNameToCPU": {
-    "B80FV": "Intel(R) Core(TM) i5-9400 CPU @ 3.10GHz",
     "B80GV": "Intel(R) Core(TM) i5-10400 CPU @ 2.90GHz",
-    "DB400T3A": "Intel(R) Pentium(R) CPU G3240 @ 3.10Ghz",
-    "DB400T6A": "Intel(R) Pentium(R) G4400 CPU @ 3.30GHz",
+    "DB-P400": "Intel(R)) Pentium(R) CPU G620 @ 2.60Ghz",
     "DB400T6B": "Intel(R) Core(TM) i5-6500 CPU @ 3.20GHz",
-    "DB400T7A": "Intel(R) Core(TM) i5-7600 CPU @ 3.50GHz",
+    "DB400T8A": "Intel(R) Core(TM) i5-8500 CPU @ 3.0GHz",
     "DB400T7B": "Intel(R) Core(TM) i5-6500 CPU @ 3.20GHz",
-    "DB400T8A": "Intel(R) Core(TM) i5-8500 CPU @ 3.00GHz",
+    "DB400T6A": "Intel(R) Pentium(R) G4400 CPU @ 3.30GHz",
+    "DB400T7A": "Intel(R) Core(TM) i5-8600 CPU @ 3.10GHz",
     "DB400T9A": "Intel(R) Core(TM) i5-9500 CPU @ 3.00GHz",
-    "M720T10SR": "Intel(R) Core(TM) i7-9700 CPU @ 3.00GHz"
+    "IMAC21": "Intel(R) Core(TM) i5-7400 CPU @ 3.00GHz",
+    "B80FV": "Intel(R) Core(TM) i5-9400 CPU @ 3.10GHz",
+    "IMAC27": "Intel(R) Core(TM) i5-8600 CPU @ 3.10GHz",
+    "DB400T3A": "Intel(R) Pentium(R) CPU G3240 @ 3.10Ghz",
+    "M720T10SR": "Intel(R) Core(TM) i7-9700 CPU @ 3.00GHz",
+    "THINKPAD T580": "Intel(R) Core(TM) i5-8250U CPU @ 1.66GHz",
+    "THINKPAD X270": "Intel(R) Core(TM) i5-7200U CPU @ 2.50GHz",
+    "THINKPAD T15 GEN 2": "Intel(R) Core(TM) i5-1135G7 CPU @ 2.40GHz",
+    "THINKPAD T590": "Intel(R) Core(TM) i5-8265U CPU @ 1.6GHz",
+    "THINKPAD T15 GEN 1": "Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz",
+    "THINKPAD T14 GEN 1": "Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz",
+    "THINKPAD T570": "Intel(R) Core(TM) i5-7200U CPU @ 2.50GHz",
+    "THINKPAD E490": "Intel(R) Core(TM) i5-8265U CPU @ 1.60GHz",
+    "NEW SURFACE PRO": "Intel(R) Core(TM) i5-7300U CPU @ 2.60GHz",
+    "THINKPAD T490S": "Intel(R) Core(TM) i5-7300U CPU @ 2.60GHz",
+    "THINKPAD X260": "Intel(R) Core(TM) i5-6200U CPU @ 2.30GHz",
+    "THINKPAD E15 GEN 1": "Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz",
+    "THINKPAD E15 GEN 2": "Intel(R) Core(TM) i5-1135G7 CPU @ 2.40GHz",
+    "15Z95N-GP79ML": "Intel(R) Core(TM) i7-1165G7 CPU @ 2.80GHz"
   },
   "mfr": {
-    "Samsung": ["DB-P400", "DBP400", "DB400", "LS19", "LS24"],
-    "LG": ["24M", "B80"],
-    "Lenovo": ["THINK", "M720"],
-    "Microsoft": ["NEW SURFACE", "SURFACE"]
+    "Samsung": [
+      "DB-P400",
+      "DBP400",
+      "DB400",
+      "LS19",
+      "LS24"
+    ],
+    "LG": [
+      "24M",
+      "B80"
+    ],
+    "Lenovo": [
+      "THINK",
+      "M720"
+    ],
+    "Microsoft": [
+      "NEW SURFACE",
+      "SURFACE"
+    ]
   }
 }

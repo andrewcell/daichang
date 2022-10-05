@@ -1,27 +1,26 @@
 package com.example
 
-import org.apache.poi.ss.usermodel.DateUtil
-import java.time.Instant
-import java.util.*
+import com.example.database.EquipmentTable
+import com.example.database.PCTable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.transactions.transaction
 
+//data class CPUModel
 fun main(args: Array<String>) {
-  /*  val handler = WorkSheetHandler("D:/!/test.xlsx")
-    val cal = Calendar.getInstance()
-    cal.set(2017, 1, 1)
-    val sheet = handler.insertNewEquipment(1, PC(
-        number = 496,
-        mgmtNumber = "EQ20220101010",
-        modelName = "B80GV",
-        mfrDate = Date(cal.timeInMillis),
-        serialNumber = "112KKKK000112",
-        cpu = "AMD RYZEN 5 5800X @ 4.3GHz",
-        hdd = 512,
-        ram = 128.0f,
-        OS = "Win 11",
-        lastUser = "이이름",
-        importDate = Date(),
-        status = Status.TO_BE_DISPOSE,
-        memo = ""
-    ))
-*/
+    val dbUrl = System.getenv("db_url") ?: ""
+    val dbUser = System.getenv("db_user") ?:""
+    val dbPass = System.getenv("db_pass") ?: ""
+    Database.connect(dbUrl, driver = "com.mysql.cj.jdbc.Driver", user = dbUser, password = dbPass)
+    transaction {
+        val map = EquipmentTable.leftJoin(PCTable).slice(EquipmentTable.modelName, PCTable.cpu).selectAll().associate {
+            it[EquipmentTable.modelName] to JsonPrimitive(it[PCTable.cpu])
+        }
+        val obj = JsonObject(map)
+        println(Json.encodeToString(obj))
+    }
 }

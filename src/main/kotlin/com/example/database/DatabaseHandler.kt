@@ -1,13 +1,12 @@
 package com.example.database
 
-import com.example.Equipment
-import com.example.Monitor
-import com.example.PC
-import com.example.Status
+import com.example.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.InsertStatement
 import org.jetbrains.exposed.sql.statements.UpdateStatement
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 object DatabaseHandler {
     private val pc: MutableList<PC>
@@ -130,7 +129,7 @@ object DatabaseHandler {
         }
     }
 
-    fun insertNewEquipment(index: Int, equipment: Equipment, forceInsert: Boolean = false) {
+    fun insertNewEquipment(index: Int, equipment: Equipment) {
         when (index) {
             1, 2 -> {
                 equipment as PC
@@ -242,19 +241,50 @@ object DatabaseHandler {
         return 1
     }
 
-    fun importERP(list: List<List<String>>) {
+    fun importERP(list: List<ERPData>) {
         transaction {
             //ERPDataTable.deleteAll()
             ERPDataTable.batchInsert(list) { eq ->
-                this[ERPDataTable.index] = eq[0].toIntOrNull() ?: return@batchInsert
-                this[ERPDataTable.mgmtNumber] = eq[1]
-                this[ERPDataTable.modelName] = eq[2]
-                this[ERPDataTable.serialNumber] = eq[3]
-                this[ERPDataTable.var1] = eq[4]
-                this[ERPDataTable.var2] = eq[5]
-                this[ERPDataTable.var3] = eq[6]
-                this[ERPDataTable.mfrDate] = eq[7]
+                this[ERPDataTable.index] = eq.index
+                this[ERPDataTable.mgmtNumber] = eq.mgmtNumber
+                this[ERPDataTable.modelName] = eq.modelName
+                this[ERPDataTable.serialNumber] = eq.serialNumber
+                this[ERPDataTable.var1] = eq.var1
+                this[ERPDataTable.var2] = eq.var2
+                this[ERPDataTable.var3] = eq.var3
+                this[ERPDataTable.mfrDate] = LocalDate.parse(eq.mfrDate, DateTimeFormatter.ISO_LOCAL_DATE)
+                this[ERPDataTable.lastUser] = eq.lastUser
             }
         }
+    }
+
+    fun getERPDataByMgmtNumber(mgmtNumber: String, requestIndex: Int): ERPData? {
+        var erpData: ERPData? = null
+        transaction {
+            val found = ERPDataTable.select { (ERPDataTable.mgmtNumber eq mgmtNumber) and (ERPDataTable.index eq requestIndex) }.limit(1).firstOrNull() ?: return@transaction
+            erpData = ERPData(
+                id = found[ERPDataTable.id].value,
+                index = found[ERPDataTable.index],
+                mgmtNumber = found[ERPDataTable.mgmtNumber],
+                modelName = found[ERPDataTable.modelName],
+                serialNumber = found[ERPDataTable.serialNumber],
+                mfrDate = found[ERPDataTable.mfrDate].format(DateTimeFormatter.ISO_LOCAL_DATE),
+                var1 = found[ERPDataTable.var1],
+                var2 = found[ERPDataTable.var2],
+                var3 = found[ERPDataTable.var3],
+                lastUser = found[ERPDataTable.lastUser]
+            )
+        }
+        return erpData
+    }
+
+    fun getCPUByModelName(model: String): String? {
+        var cpu: String? = null
+        transaction {
+            val found = EquipmentTable.leftJoin(PCTable).slice(PCTable.cpu).select { EquipmentTable.modelName like "$model%" }.limit(1).firstOrNull()
+                    ?: return@transaction
+            cpu = found[PCTable.cpu]
+        }
+        return cpu
     }
 }

@@ -37,30 +37,32 @@ object WorkSheetHandler {
         try {
             val workbook = XSSFWorkbook(input)
             val sheet = workbook.first()
-            val value = buildList<List<String>> {
+            val value = buildList<ERPData> {
                 sheet.forEach { row ->
                     if (row.rowNum == sheet.lastRowNum) return@forEach
-                    add(buildList {
-                        if (row.rowNum == 0) return@forEach
-                        val index = when (row.getCell(3).stringCellValue ?: "") {
-                            "데스크탑" -> 1
-                            "노트북" -> 2
-                            "모니터" -> 3
-                            else -> -1
-                        }
-                        add(index.toString())
-                        add(row.getCell(0).stringCellValue) // Mgmt Number
-                        add(row.getCell(1).stringCellValue) // Model Name
-                        add(row.getCell(2).stringCellValue) // serialnumber
-                        add(row.getCell(4).stringCellValue) // CPU or Cable
-                        add(row.getCell(5).stringCellValue) // RAM or inch
-                        add(row.getCell(6).stringCellValue) // HARD or Power
-                        add(row.getCell(7).stringCellValue) // mfrDate
-                    })
+                    if (row.rowNum == 0) return@forEach
+                    val index = when (row.getCell(3).stringCellValue ?: "") {
+                        "데스크탑" -> 1
+                        "노트북" -> 2
+                        "모니터" -> 3
+                        else -> -1
+                    }
+                    add(ERPData(
+                        index = index,
+                        mgmtNumber = row.getCell(0).stringCellValue,
+                        modelName = row.getCell(1).stringCellValue,
+                        serialNumber = row.getCell(2).stringCellValue,
+                        var1 = row.getCell(4).stringCellValue,
+                        var2 = row.getCell(5).stringCellValue,
+                        var3 = row.getCell(6).stringCellValue,
+                        mfrDate = row.getCell(7).stringCellValue,
+                        lastUser = row.getCell(10).stringCellValue
+                    ))
                 }
             }
             DatabaseHandler.importERP(value)
         } catch (e: Exception) {
+            lock = false
             return e.message
         }
         return null

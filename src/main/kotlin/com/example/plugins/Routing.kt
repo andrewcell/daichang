@@ -84,17 +84,21 @@ fun Application.configureRouting() {
                 val ram = parameters["inputRAM"]?.toFloatOrNull() ?: 0.0f
                 val os = parameters["inputOS"] ?: ""
                 val inch = if (index == 2) parameters["inputInch"]?.toFloatOrNull() else null
-                DatabaseHandler.insertNewEquipment(index, PC(
-                    id, cabinetNumber, mgmtNumber, modelName, mfrDate, serial, cpu, hdd, ram, os, inch, lastUser, importDate, status, memo, (index == 2)
-                ))
+                DatabaseHandler.insertNewEquipment(
+                    index, PC(
+                        id, cabinetNumber, mgmtNumber, modelName, mfrDate, serial, cpu, hdd, ram, os, inch, lastUser, importDate, status, memo, (index == 2)
+                    )
+                )
             } else {
                 val ratio = parameters["inputRatio"] ?: ""
                 val resolution = parameters["inputResolution"] ?: ""
                 val cable = parameters["inputCable"] ?: ""
                 val inch = parameters["inputInch"]?.toFloatOrNull() ?: 0.0f
-                DatabaseHandler.insertNewEquipment(index, Monitor(
-                    id, cabinetNumber, mgmtNumber, modelName, mfrDate, serial, ratio, resolution,inch, cable, lastUser, importDate, status, memo
-                ))
+                DatabaseHandler.insertNewEquipment(
+                    index, Monitor(
+                        id, cabinetNumber, mgmtNumber, modelName, mfrDate, serial, ratio, resolution,inch, cable, lastUser, importDate, status, memo
+                    )
+                )
             }
             call.respondRedirect(when (index) {
                 1 -> "/pc"
@@ -258,6 +262,49 @@ fun Application.configureRouting() {
                 call.respond(importData(it, true))
             }
             call.respond("{\"data\": \"에러가 발생하였습니다: 잘못된 요청\", \"success\": false}")
+        }
+
+        post("/autofill") {
+            val parameter = call.receiveParameters()
+            val mgmtNumber = parameter["query"]
+            if (mgmtNumber == null || mgmtNumber == "") return@post
+            val requestIndex = when (call.request.header(HttpHeaders.Referrer)?.split("/")?.last()) {
+                "pc" -> 1
+                "laptop" -> 2
+                "monitor" -> 3
+                else -> -1
+            }
+            val erpData = DatabaseHandler.getERPDataByMgmtNumber(mgmtNumber, requestIndex)
+            if (erpData == null) {
+                call.respond(status = HttpStatusCode.BadRequest, "Not found")
+                return@post
+            }
+            if (erpData.index in 1..2) {
+                val cpu = DatabaseHandler.getCPUByModelName(erpData.modelName) ?: erpData.var1
+                erpData.var1 = cpu
+                var hdd = erpData.var3.trim()
+                val unit = hdd.takeLast(2)
+                hdd = hdd.dropLast(2)
+                val hddValue = if (unit == "TB") {
+                    (hdd.replace(".0", "").toIntOrNull() ?: 0) * 1024
+                } else hdd.toIntOrNull() ?: 0
+                erpData.var3 = if (hddValue == 0) "256" else hddValue.toString()
+                erpData.var2 = erpData.var2.trim().dropLast(2)
+            } else if (erpData.index == 3) {
+                val inch = erpData.var2.take(2).toIntOrNull() ?: 24
+                erpData.var2 = inch.toString()
+                erpData.var4 = when (inch) {
+                    in 17..19 -> "1280x1024"
+                    in 24..32 -> "1920x1080"
+                    else -> "1920x1080"
+                }
+                erpData.var5 = when (inch) {
+                    in 17..19 -> "4:3"
+                    in 24..32 -> "16:9"
+                    else -> "16:9"
+                }
+            }
+            call.respond(Json.encodeToString(erpData))
         }
 
         get("/export") {

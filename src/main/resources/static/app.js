@@ -157,4 +157,40 @@ $(document).ready(() => {
             }
         })
     })
+    $("#inputMgmtNumber").on("keyup", function(key) {
+        if (key.keyCode == 13) {
+            $.ajax({
+                type: "post",
+                url: "/autofill",
+                data: {
+                    query: $(this).val()
+                },
+                success: (res) => {
+                    const data = JSON.parse(res)
+                    const index = data["index"]
+                    if (index != "" || index != null) {
+                        $("#inputModelName").val(data["modelName"])
+                        $("#inputMfrDate").val(data["mfrDate"])
+                        $("#inputSerial").val(data["serialNumber"])
+                        $("#inputLastUser").val(data["lastUser"])
+                    }
+                    switch (index) {
+                        case 1:
+                        case 2:
+                            $("#inputCPU").val(data["var1"]);
+                            $("#inputRAM").val(data["var2"]);
+                            $("#inputHDD").val(data["var3"]);
+                            break;
+                        case 3:
+                            $("#inputInch").val(data["var2"]);
+                            $("#inputCable").val(data["var1"]);
+                            $("#inputResolution").val(data["var4"]);
+                            $("#inputRatio").val(data["var5"]);
+                            break;
+                    }
+                    //alert(JSON.stringify(data, null, 4))
+                }
+            })
+        }
+    })
 })
