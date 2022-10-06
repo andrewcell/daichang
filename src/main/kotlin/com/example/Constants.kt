@@ -2,8 +2,6 @@ package com.example
 
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromStream
-import java.io.InputStream
 import java.nio.charset.Charset
 
 class Constants {
@@ -16,5 +14,6 @@ class Constants {
         val colsMonitor = colsStart + listOf("화면비율", "해상도", "인치", "케이블종류") + colsEnd
         val staticData = this::class.java.classLoader.getResource("data.json")
             ?.let { Json.decodeFromString<StaticData>(it.readText(Charset.defaultCharset())) }
+        val badRequest = AjaxResponse(false, "잘못된 요청입니다.")
     }
 }

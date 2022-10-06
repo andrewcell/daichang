@@ -9,19 +9,20 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 object DatabaseHandler {
-    private val pc: MutableList<PC>
-    private val laptop: MutableList<PC>
-    private val monitor: MutableList<Monitor>
+    private val pc: MutableList<PC> = mutableListOf()
+    private val laptop: MutableList<PC> = mutableListOf()
+    private val monitor: MutableList<Monitor> = mutableListOf()
     var isBusy = false
-    init {
-        val pcList = mutableListOf<PC>()
-        val laptopList = mutableListOf<PC>()
-        var monitorList = emptyList<Monitor>()
 
+    init {
+        buildCache()
+    }
+
+    private fun buildCache() {
         transaction {
             (EquipmentTable innerJoin PCTable).select { EquipmentTable.id eq PCTable.equipmentId }.forEach {
                 val inch = it[PCTable.inch]
-                val pc = PC(
+                val pcEntry = PC(
                     id = it[EquipmentTable.id],
                     cabinetNumber = it[EquipmentTable.cabinetNumber] ?: -1,
                     mgmtNumber = it[EquipmentTable.mgmtNumber],
@@ -39,12 +40,12 @@ object DatabaseHandler {
                     memo = it[EquipmentTable.memo],
                     isLaptop = inch != null
                 )
-                if (pc.isLaptop) {
-                    laptopList.add(pc)
-                } else pcList.add(pc)
+                if (pcEntry.isLaptop) {
+                    laptop.add(pcEntry)
+                } else pc.add(pcEntry)
             }
-            monitorList =(EquipmentTable innerJoin MonitorTable).select { EquipmentTable.id eq MonitorTable.equipmentId }.map {
-                Monitor(
+            (EquipmentTable innerJoin MonitorTable).select { EquipmentTable.id eq MonitorTable.equipmentId }.forEach {
+                monitor.add(Monitor(
                     id = it[EquipmentTable.id],
                     cabinetNumber = it[EquipmentTable.cabinetNumber] ?: -1,
                     mgmtNumber = it[EquipmentTable.mgmtNumber],
@@ -59,12 +60,21 @@ object DatabaseHandler {
                     importDate = it[EquipmentTable.importDate],
                     status = Status.findByValue(it[EquipmentTable.status]) ?: Status.NOT_AVAILABLE,
                     memo = it[EquipmentTable.memo],
-                )
+                ))
             }
         }
-        pc = pcList
-        laptop = laptopList
-        monitor = monitorList.toMutableList()
+    }
+
+    fun rebuild(): String? {
+        try {
+            pc.clear()
+            laptop.clear()
+            monitor.clear()
+            buildCache()
+        } catch (e: Exception) {
+            return e.message
+        }
+        return null
     }
 
     fun getAll(): Array<List<Equipment>> {

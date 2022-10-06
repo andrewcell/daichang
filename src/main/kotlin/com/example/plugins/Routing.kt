@@ -229,11 +229,11 @@ fun Application.configureRouting() {
             call.respondHtmlTemplate(LabelTemplate(targetList)) { }
         }
 
-        fun importData(part: PartData, isERP: Boolean = false): String {
+        fun importData(part: PartData, isERP: Boolean = false): AjaxResponse {
             if (part is PartData.FileItem) {
                 part.streamProvider().use {
                     if (DatabaseHandler.isBusy) {
-                        return "{\"data\": \"다른 작업이 진행중입니다. 잠시후 다시 시도해주세요.\", \"success\": false}"
+                        return AjaxResponse(false, "다른 작업이 진행중입니다. 잠시후 다시 시도해주세요.")
                     }
                     DatabaseHandler.isBusy = true
                     val result = if (isERP) WorkSheetHandler.importERPData(it) else WorkSheetHandler.import(it)
@@ -241,11 +241,11 @@ fun Application.configureRouting() {
                     val message = if (result == null) {
                         "들여오기 성공"
                     } else "에러가 발생하였습니다: $result"
-                    return "{\"data\": \"$message\", \"success\": ${result == null}}"
+                    return AjaxResponse(result == null, message)
                 }
             }
             part.dispose()
-            return ""
+            return AjaxResponse(false, "알 수 없는 오류.")
         }
 
         post("/import") {
@@ -253,7 +253,7 @@ fun Application.configureRouting() {
             multipart.forEachPart { part ->
                 call.respond(importData(part))
             }
-            call.respond("{\"data\": \"에러가 발생하였습니다: 잘못된 요청\", \"success\": false}")
+            call.respond(Constants.badRequest)
         }
 
         post("/erp") {
@@ -261,7 +261,7 @@ fun Application.configureRouting() {
             multipart.forEachPart {
                 call.respond(importData(it, true))
             }
-            call.respond("{\"data\": \"에러가 발생하였습니다: 잘못된 요청\", \"success\": false}")
+            call.respond(Constants.badRequest)
         }
 
         post("/autofill") {
@@ -305,7 +305,7 @@ fun Application.configureRouting() {
                     else -> "16:9"
                 }
             }
-            call.respond(Json.encodeToString(erpData))
+            call.respond(erpData)
         }
 
         get("/export") {
@@ -329,6 +329,14 @@ fun Application.configureRouting() {
                 }
             }
         }
+
+        post("/rebuild") {
+            DatabaseHandler.isBusy = true
+            val result = DatabaseHandler.rebuild()
+            DatabaseHandler.isBusy = false
+            call.respond(AjaxResponse(result == null, result))
+        }
+
         // Static plugin. Try to access `/static/index.html`
         static("/static") {
             resources("static")

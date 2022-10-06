@@ -6,8 +6,11 @@ import com.example.database.MonitorTable
 import com.example.database.PCTable
 import com.example.plugins.configureRouting
 import com.example.plugins.configureTemplating
+import io.ktor.serialization.kotlinx.json.*
+import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.ktor.server.plugins.contentnegotiation.*
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Slf4jSqlDebugLogger
@@ -32,6 +35,9 @@ fun main() {
         ) {
             configureTemplating()
             configureRouting()
+            install(ContentNegotiation) {
+                json()
+            }
         }.start(wait = true)
     }
 }

@@ -2,6 +2,16 @@ const addModal = document.getElementById('addModal')
 const filterModal = document.getElementById('filterModal')
 
 $(document).ready(() => {
+    const addAlert = (success, message) => {
+        let alertColor = "success"
+        if (!success) {
+            alertColor = "danger"
+        }
+        $("#app").prepend("<div class=\"alert alert-" + alertColor + "\" role=\"alert\">" + message + "</div>") // Add alert for message.
+    }
+    const removeAlert = () => {
+        $(".alert").remove();
+    }
     /*
         Table
     */
@@ -64,13 +74,13 @@ $(document).ready(() => {
             type: 'post',
             url: '/filter',
             data: $('#filterModalForm').serialize()
-        }).then((res,v,x) => { // res will be array of numbers.  [1, 2, 3]
-            const result = JSON.parse(res); // Parse as JSON.
-            $("#filterModalApplyButton").text("적용 (" + result.length + "개 발견)"); // Notify count of found equipments to button.
+        }).then((raw,v,x) => { // res will be array of numbers.  [1, 2, 3]
+            const res = JSON.parse(raw);
+            $("#filterModalApplyButton").text("적용 (" + res.length + "개 발견)"); // Notify count of found equipments to button.
             Object.values($("tbody tr")).forEach(row => { // Looking every rows in table, if not included in filtered array, hide. if included, show
                 const numberCol = row.children[0]; // number is first column. 
                 const number = numberCol.innerText; 
-                if (!result.includes(number * 1)) { // * 1 is required when convert string to number.
+                if (!res.includes(number * 1)) { // * 1 is required when convert string to number.
                     row.hidden = true;
                 } else {
                     row.hidden = false;
@@ -145,12 +155,8 @@ $(document).ready(() => {
             contentType: false,
             data: formData,
             success: (res) => {
-                const response = JSON.parse(res) // {"data": MESSAGE_FROM_SERVER, success: it_is_successful?}
-                let alertColor = "success"
-                if (response.success == false) { // if received as failed.
-                    alertColor = "danger"
-                }
-                $("#app").prepend("<div class=\"alert alert-" + alertColor + "\" role=\"alert\">" + response.data + "</div>") // Add alert for message.
+                addAlert(res.success, (res.success ? "Spreadsheet has been imported." : res.message))
+                //$("#app").prepend("<div class=\"alert alert-" + alertColor + "\" role=\"alert\">" + response.data + "</div>") // Add alert for message.
                 $("#spreadsheetCardImportButton").attr('disabled', false); // re-enable button
                 $("#spreadsheetCardExportButton").attr('disabled', false); // re-enable button
                 $("#spreadsheetCardImportButton").text('들여오기');
@@ -165,8 +171,8 @@ $(document).ready(() => {
                 data: {
                     query: $(this).val()
                 },
-                success: (res) => {
-                    const data = JSON.parse(res)
+                success: (data) => {
+                    //const data = JSON.parse(res)
                     const index = data["index"]
                     if (index != "" || index != null) {
                         $("#inputModelName").val(data["modelName"])
@@ -192,5 +198,18 @@ $(document).ready(() => {
                 }
             })
         }
+    })
+    $("#clearCacheButton").on('click', function() {
+        removeAlert();
+        $(this).attr('disabled', true);
+        $(this).text("Rebuilding cache...");
+        $.ajax({
+            type: "post",
+            url: "/rebuild"
+        }).then((res) => {
+            addAlert(res["success"] == true, (res["success"] ? "Cache has been rebuild." : res["message"]))
+            $(this).attr('disabled', false);
+            $(this).text("Rebuild cache");
+        })
     })
 })

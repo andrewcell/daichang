@@ -40,5 +40,13 @@ class ControlPanelTemplate : Template<FlowContent> {
                 }
             }
         }
+        div("mb-2") {
+            h3 { +"In-memory cache management" }
+            p { +"This website stores every data from database into memory upon initial start for better performance. If database modified by hand or 3rd-party tools, you need to clear the cache to use latest data. After click bottom button, Server will clear cache and rebuild from database. During this operation, server could turned to be in-operable." }
+            button(classes = "btn btn-info") {
+                id = "clearCacheButton"
+                +"Rebuild cache"
+            }
+        }
     }
 }
