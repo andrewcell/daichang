@@ -212,4 +212,13 @@ $(document).ready(() => {
             $(this).text("Rebuild cache");
         })
     })
+    $("#spreadsheetCardCleanButton").on('click', function() {
+        removeAlert();
+        $.ajax({
+            type: "delete",
+            url: "/erp"
+        }).then((res) => {
+            addAlert(res.success, res.message)
+        });
+    });
 })

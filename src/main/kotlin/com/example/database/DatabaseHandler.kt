@@ -297,4 +297,16 @@ object DatabaseHandler {
         }
         return cpu
     }
+
+    fun cleanERPData(): String? {
+        var message: String? = null
+        try {
+            transaction {
+                ERPDataTable.deleteAll()
+            }
+        } catch (e: Exception) {
+            message = e.message
+        }
+        return message
+    }
 }

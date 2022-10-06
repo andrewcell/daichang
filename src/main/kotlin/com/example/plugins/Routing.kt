@@ -264,6 +264,12 @@ fun Application.configureRouting() {
             call.respond(Constants.badRequest)
         }
 
+        delete("/erp") {
+            val result = DatabaseHandler.cleanERPData()
+            val success = result == null
+            call.respond(AjaxResponse(success, if (success) "ERP data has been cleaned." else result))
+        }
+
         post("/autofill") {
             val parameter = call.receiveParameters()
             val mgmtNumber = parameter["query"]

@@ -28,9 +28,7 @@ class ControlPanelTemplate : Template<FlowContent> {
                                     id = "spreadsheetCardImportButton"
                                     +"들여오기"
                                 }
-                                a(classes = "btn btn-primary", href = "/export") {
-                                    target = "_blank"
-                                    role = "button"
+                                button(type = ButtonType.button, classes = "btn btn-warning") {
                                     id = "spreadsheetCardCleanButton"
                                     +"전체삭제"
                                 }
