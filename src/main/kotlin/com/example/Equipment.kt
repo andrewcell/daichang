@@ -1,7 +1,6 @@
 package com.example
 
 import java.time.LocalDate
-import java.util.*
 
 interface Equipment {
     var id: Int

@@ -13,8 +13,8 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.webjars.*
 import kotlinx.html.p
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -126,38 +126,42 @@ fun Application.configureRouting() {
 
         }
 
+        @Serializable
+        data class FilterRequest(
+            val mfr: String,
+            val modelName: String,
+            val status: String,
+            val lastUser: String,
+            val query: String,
+            val queryType: String,
+            val index: Int,
+            val andOr: String,
+        )
         post("/filter") {
-            val parameters = call.receiveParameters()
-            val mfr = parameters["mfr"] ?: ""
-            val modelName = parameters["modelName"] ?: ""
-            val status = parameters["status"] ?: ""
-            val lastUser = parameters["lastUser"] ?: ""
-            val query = parameters["query"] ?: ""
-            val queryType = parameters["queryType"] ?: ""
-            val index = parameters["index"]?.toIntOrNull() ?: -1
-            val isAnd = parameters["andOr"] == "and"
-            val originalList = DatabaseHandler.getList(index)
+            val param = call.receive<FilterRequest>()
+            val originalList = DatabaseHandler.getList(param.index)
+            val isAnd = param.andOr == "and"
             if (originalList.isEmpty()) {
                 call.respond(HttpStatusCode.BadRequest)
                 return@post
             }
             val filteredList = originalList.filter {
                 var mfrMatch = false
-                if (mfr == "-" ) {
+                if (param.mfr == "-" ) {
                     mfrMatch = isAnd
                 } else {
-                    Constants.staticData?.mfr?.get(mfr)?.forEach { m ->
+                    Constants.staticData?.mfr?.get(param.mfr)?.forEach { m ->
                         if (it.modelName.startsWith(m)) {
                             mfrMatch = true
                         }
                     }
                 }
-                val modelMatch = if (modelName != "-") it.modelName == modelName else isAnd
-                val statusMatch = if (status != "-") it.status.value == status else isAnd
-                val lastUserMatch = if (lastUser != "-") it.lastUser == lastUser else isAnd
+                val modelMatch = if (param.modelName != "-") it.modelName == param.modelName else isAnd
+                val statusMatch = if (param.status != "-") it.status.value == param.status else isAnd
+                val lastUserMatch = if (param.lastUser != "-") it.lastUser == param.lastUser else isAnd
                 var queryMatch = isAnd
-                if (query.trim() !in arrayOf("", "-", "전체")) {
-                    queryMatch = when (queryType) {
+                if (param.query.trim() !in arrayOf("", "-", "전체")) {
+                    queryMatch = when (param.queryType) {
                         "순번" -> it.cabinetNumber.toString()
                         "관리번호" -> it.mgmtNumber
                         "모델명" -> it.modelName
@@ -168,27 +172,27 @@ fun Application.configureRouting() {
                         "상태" -> it.status.value
                         "비고" -> it.memo
                         else -> ""
-                    }.contains(query)
+                    }.contains(param.query)
                     if (!queryMatch) {
-                        if (index in 1..2) {
+                        if (param.index in 1..2) {
                             it as PC
-                            queryMatch = when (queryType) {
+                            queryMatch = when (param.queryType) {
                                 "CPU" -> it.cpu
                                 "HDD" -> it.hdd.toString()
                                 "RAM" -> it.ram.toString()
                                 "OS" -> it.OS
                                 "인치" -> it.inch?.toString() ?: ""
                                 else -> ""
-                            }.contains(query)
+                            }.contains(param.query)
                         } else {
                             it as Monitor
-                            queryMatch = when (queryType) {
+                            queryMatch = when (param.queryType) {
                                 "화면비율" -> it.ratio
                                 "해상도" -> it.resolution
                                 "인치" -> it.inch.toString()
                                 "케이블종류" -> it.cable
                                 else -> ""
-                            }.contains(query)
+                            }.contains(param.query)
                         }
                     }
                 }
@@ -198,7 +202,7 @@ fun Application.configureRouting() {
                     modelMatch or statusMatch or lastUserMatch or queryMatch or mfrMatch
                 }
             }
-            call.respond(Json.encodeToString(filteredList.map { it.cabinetNumber }))
+            call.respond(filteredList.map { it.cabinetNumber })
         }
 
         get("/print/{index}/{mgmtNumber}") {

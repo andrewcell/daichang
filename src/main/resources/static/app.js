@@ -1,6 +1,17 @@
 const addModal = document.getElementById('addModal')
 const filterModal = document.getElementById('filterModal')
 
+function getFormData($form){
+    var unindexed_array = $form.serializeArray();
+    var indexed_array = {};
+
+    $.map(unindexed_array, function(n, i){
+        indexed_array[n['name']] = n['value'];
+    });
+
+    return indexed_array;
+}
+
 $(document).ready(() => {
     const addAlert = (success, message) => {
         let alertColor = "success"
@@ -73,9 +84,10 @@ $(document).ready(() => {
         $.ajax({
             type: 'post',
             url: '/filter',
-            data: $('#filterModalForm').serialize()
-        }).then((raw,v,x) => { // res will be array of numbers.  [1, 2, 3]
-            const res = JSON.parse(raw);
+            contentType: "application/json",
+            data: JSON.stringify(getFormData($('#filterModalForm')))
+        }).then((res,v,x) => { // res will be array of numbers.  [1, 2, 3]
+            //const res = JSON.parse(raw);
             $("#filterModalApplyButton").text("적용 (" + res.length + "개 발견)"); // Notify count of found equipments to button.
             Object.values($("tbody tr")).forEach(row => { // Looking every rows in table, if not included in filtered array, hide. if included, show
                 const numberCol = row.children[0]; // number is first column. 
@@ -100,7 +112,7 @@ $(document).ready(() => {
         window.open('/print/'+ index + '/' + number) // Open new window to /print/index/number. Number 123 PC will be /print/1/EQ20210812333
     });
     /*
-        Index 
+        Index
     */
     $('.list-group a').click(function() { // Clicked in Print selection modal. Make active permanently.
       $(this).toggleClass('active')
