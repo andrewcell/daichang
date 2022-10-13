@@ -153,7 +153,11 @@ object WorkSheetHandler {
                     2 -> Constants.colsLaptop
                     3 -> Constants.colsMonitor
                     else -> return null
-                }
+                }.toMutableList()
+                colList.removeLast()
+                colList.add("empty1")
+                colList.add("empty2")
+                colList.add(Constants.colsPC.last())
                 for((index, col) in colList.withIndex()) {
                     colLabelRow.createCell(index).setCellValue(col)
                 }
@@ -175,7 +179,7 @@ object WorkSheetHandler {
                             newRow.createCell(9).setCellValue(equipment.inch.toDouble())
                         }
                     } else if (equipment is Monitor) {
-                        newRow.createCell(5).setCellValue(equipment.ratio)
+                       newRow.createCell(5).setCellValue(equipment.ratio)
                         newRow.createCell(6).setCellValue(equipment.resolution)
                         newRow.createCell(7).setCellValue(equipment.inch.toDouble())
                         newRow.createCell(8).setCellValue(equipment.cable)
@@ -186,7 +190,7 @@ object WorkSheetHandler {
                     importDateCell.setCellValue(equipment.importDate)
                     importDateCell.cellStyle = dateFormat
                     newRow.createCell(11 + columnAddition).setCellValue(equipment.status.value)
-                    newRow.createCell(12 + columnAddition).setCellValue(equipment.memo)
+                    newRow.createCell(14 + columnAddition).setCellValue(equipment.memo)
                 }
                 val table = sheet.createTable(AreaReference(
                     CellReference(0, 0),
