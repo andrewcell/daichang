@@ -3,6 +3,15 @@ package com.example.templates
 import io.ktor.server.html.*
 import kotlinx.html.*
 
+/**
+ * Select-Option tag area in Filter Modal
+ *
+ * @param inputName name, id of select tag
+ * @param label select tag label text
+ * @param optionList List of options string
+ * @property inputContent If need to have extra input tag or html tags. OPTIONAL.
+ * @author Seungyeon Choi {@literal <git@vxz.me>}
+ */
 class FilterInputTemplate(
     private val inputName: String,
     private val label: String,

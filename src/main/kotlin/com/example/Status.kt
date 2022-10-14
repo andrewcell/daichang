@@ -4,6 +4,7 @@ package com.example
  * Status of each equipment. It is available to use, not available to use, or marked as to be disposed.
  *
  * @property value value to store as in DBMS or handle as in web request or routing.
+ * @author Seungyeon Choi {@literal <git@vxz.me>}
  */
 enum class Status(val value: String) {
     AVAILABLE("사용가능"), NOT_AVAILABLE("사용불가"), TO_BE_DISPOSE("폐기예정");

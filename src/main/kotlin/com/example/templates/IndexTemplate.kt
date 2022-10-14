@@ -3,29 +3,32 @@ package com.example.templates
 import com.example.Equipment
 import com.example.Status
 import io.ktor.server.html.*
-import kotlinx.html.FlowContent
-import kotlinx.html.div
 import kotlinx.html.*
-import kotlinx.html.script
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
+/**
+ * Template code of Index page. Provides chart of status of equipments and Import/Export from/to a spreadsheet file.
+ *
+ * @param list Array of List of equipments. First element is List of PCs, second is Laptops, last one is Monitors.
+ * @author Seungyeon Choi {@literal <git@vxz.me>}
+ */
 class IndexTemplate(private val list: Array<List<Equipment>>) : Template<FlowContent> {
     override fun FlowContent.apply() {
-        var available = 0
+        var available = 0 // Count will be re-used for next equipment type.
         var notAvailable = 0
         var toBeDispose = 0
-        val counts = mutableListOf<Array<Int>>()
-        list.forEach { equip ->
-            equip.forEach {
+        val counts = mutableListOf<Array<Int>>() // List of Array of counts. counts[0] = Counts from PC, counts[1] = Counts from Laptop,
+        list.forEach { equip -> // Each List of equipment
+            equip.forEach { // Each equipment
                 when (it.status) {
                     Status.AVAILABLE -> available++
                     Status.NOT_AVAILABLE -> notAvailable++
                     Status.TO_BE_DISPOSE -> toBeDispose++
                 }
             }
-            counts.add(arrayOf(available, notAvailable, toBeDispose))
-            available = 0
+            counts.add(arrayOf(available, notAvailable, toBeDispose)) // Add to counts list.
+            available = 0 // Reset counts for next type.
             notAvailable = 0
             toBeDispose = 0
         }

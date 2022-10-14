@@ -5,6 +5,15 @@ import com.example.Status
 import io.ktor.server.html.*
 import kotlinx.html.*
 
+/**
+ * Modal for filtering table rows in TableTemplate. Provide advanced search tool for equipments table.
+ *
+ * @param index Index of table. 1 for PC, 2 for Laptop, 3 for Monitor. Other values will be ignored.
+ * @param modelNames List of equipment model names. Use for select tag to select a model name extracted from the table.
+ * @param lastUsers List of equipment last usernames. Use for select tag to select a last username extracted from the table.
+ * @param colList List of Columns. For search in value from the specific column.
+ * @author Seungyeon Choi {@literal <git@vxz.me>}
+ */
 class FilterModalTemplate(
     private val index: Int,
     private val modelNames: MutableList<String>,
