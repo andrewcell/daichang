@@ -298,8 +298,9 @@ fun Application.configureRouting() {
                 val hddValue = if (unit == "TB") {
                     (hdd.replace(".0", "").toIntOrNull() ?: 0) * 1024
                 } else hdd.toIntOrNull() ?: 0
-                erpData.var3 = if (hddValue == 0) "256" else hddValue.toString()
-                erpData.var2 = erpData.var2.trim().dropLast(2)
+                erpData.var3 = if (hddValue == 0) "256" else hddValue.toString() // var3 == HDD
+                erpData.var2 = erpData.var2.trim().dropLast(2) // var2 == RAM
+                erpData.var4 = Constants.getInchByLaptopModelName(erpData.modelName).toString()
             } else if (erpData.index == 3) {
                 val inch = erpData.var2.take(2).toIntOrNull() ?: 24
                 erpData.var1 = erpData.var1.replace(Regex("[\uAC00-\uD7A3]"), "").trim()

@@ -193,8 +193,9 @@ $(document).ready(() => {
                         $("#inputLastUser").val(data["lastUser"])
                     }
                     switch (index) {
-                        case 1:
                         case 2:
+                            $("#inputInch").va(data["var4"]);
+                        case 1:
                             $("#inputCPU").val(data["var1"]);
                             $("#inputRAM").val(data["var2"]);
                             $("#inputHDD").val(data["var3"]);
