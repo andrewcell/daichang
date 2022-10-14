@@ -122,7 +122,7 @@ class AddModalTemplate(
                     /*insert(InputTemplate("inputStatus", "사용가능")) {
                         inputLabel { +"상태" }
                     }*/
-                    insert(InputTemplate("inputMemo", "비고")) {
+                    insert(InputTemplate("inputMemo", "비고", inputRequired = false)) {
                         inputLabel { +"비고" }
                     }
                     div {

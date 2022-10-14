@@ -73,8 +73,20 @@ $(document).ready(() => {
             }
         });
     });
-    $("#addModalSaveButton").on('click', () => { // If click save button, Submit form in Modal. 
-        $("#addModalForm")[0].submit();
+    $("#addModalSaveButton").on('click', () => { // If click save button, Submit form in Modal.
+        const required = $('input,textarea,select').filter('[required]:visible');
+        let validated = true;
+        required.each(function() {
+            if ($(this).val() == '') {
+                validated = false;
+                return
+            }
+        })
+        if (validated) {
+            $("#addModalForm")[0].submit();
+        } else {
+            alert("일부 필드가 비어있습니다.")
+        }
     });
     $("#deleteConfirmButton").on('click', () => { // If click confirm delete button, Change form url to /delete, and submit.
         $("#addModalForm").attr('action', '/delete');
@@ -194,7 +206,7 @@ $(document).ready(() => {
                     }
                     switch (index) {
                         case 2:
-                            $("#inputInch").va(data["var4"]);
+                            $("#inputInch").val(data["var4"]);
                         case 1:
                             $("#inputCPU").val(data["var1"]);
                             $("#inputRAM").val(data["var2"]);
