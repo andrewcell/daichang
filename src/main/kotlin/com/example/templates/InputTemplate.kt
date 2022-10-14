@@ -1,8 +1,6 @@
 package com.example.templates
 
 import io.ktor.server.html.*
-import kotlinx.html.FlowContent
-import kotlinx.html.div
 import kotlinx.html.*
 
 class InputTemplate(
@@ -11,7 +9,7 @@ class InputTemplate(
     private val inputValue: String = "",
     private val inputType: InputType = InputType.text,
     private val inputList: String? = null,
-    private val inputRequired: Boolean = false
+    private val inputRequired: Boolean = true
     //private val input
 ) : Template<FlowContent> {
     val inputLabel = Placeholder<FlowContent>()
