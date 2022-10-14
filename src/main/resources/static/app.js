@@ -13,12 +13,15 @@ function getFormData($form){
 }
 
 $(document).ready(() => {
-    const addAlert = (success, message) => {
+    const addAlert = (success, message, target) => {
+        if (target == null || target == '') {
+            target = "#app"
+        }
         let alertColor = "success"
         if (!success) {
             alertColor = "danger"
         }
-        $("#app").prepend("<div class=\"alert alert-" + alertColor + "\" role=\"alert\">" + message + "</div>") // Add alert for message.
+        $(target).prepend("<div class=\"alert alert-" + alertColor + "\" role=\"alert\">" + message + "</div>") // Add alert for message.
     }
     const removeAlert = () => {
         $(".alert").remove();
@@ -74,6 +77,7 @@ $(document).ready(() => {
         });
     });
     $("#addModalSaveButton").on('click', () => { // If click save button, Submit form in Modal.
+        removeAlert();
         const required = $('input,textarea,select').filter('[required]:visible');
         let validated = true;
         required.each(function() {
@@ -85,7 +89,7 @@ $(document).ready(() => {
         if (validated) {
             $("#addModalForm")[0].submit();
         } else {
-            alert("일부 필드가 비어있습니다.")
+            $("#addModal .modal-body").append("<div class=\"alert alert-danger\" role=\"alert\">일부 필드가 비어있습니다.</div>");
         }
     });
     $("#deleteConfirmButton").on('click', () => { // If click confirm delete button, Change form url to /delete, and submit.
@@ -188,6 +192,7 @@ $(document).ready(() => {
         })
     })
     $("#inputMgmtNumber").on("keyup", function(key) {
+        removeAlert();
         if (key.keyCode == 13) {
             $.ajax({
                 type: "post",
@@ -220,6 +225,9 @@ $(document).ready(() => {
                             break;
                     }
                     //alert(JSON.stringify(data, null, 4))
+                },
+                error: (res) => {
+                    addAlert(false, "관리 번호를 찾을 수 없습니다.", "#addModal .modal-body")
                 }
             })
         }
