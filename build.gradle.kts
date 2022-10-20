@@ -56,6 +56,9 @@ dependencies {
     // Webjars
     // https://mvnrepository.com/artifact/org.webjars/bootstrap
     implementation("org.webjars:bootstrap:5.2.0")
-    testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    testImplementation(kotlin("test"))
+}
+
+tasks.test {
+    useJUnitPlatform()
 }

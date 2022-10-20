@@ -13,11 +13,9 @@ object DatabaseHandler {
     private val laptop: MutableList<PC> = mutableListOf()
     private val monitor: MutableList<Monitor> = mutableListOf()
     var isBusy = false
-
     init {
         buildCache()
     }
-
     private fun buildCache() {
         transaction {
             (EquipmentTable innerJoin PCTable).select { EquipmentTable.id eq PCTable.equipmentId }.forEach {
