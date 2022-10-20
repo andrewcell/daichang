@@ -2,6 +2,11 @@ package com.example
 
 import kotlinx.serialization.Serializable
 
+/**
+ * Static Data from JSON file (See data.json in resources)
+ * @property modelNameToCPU Map of A Pair of model Name and CPU. model Name as a key.
+ * @property mfr Each array of manufacturer by the part of model name. Manufacturer as a key, contains array of model names.
+ */
 @Serializable
 data class StaticData(
     val modelNameToCPU: Map<String, String>,

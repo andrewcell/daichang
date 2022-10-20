@@ -1,8 +1,24 @@
 package com.example
 
 import java.time.LocalDate
-import java.util.*
 
+/**
+ * Monitor class. Use for Monitor
+ * @property id Primary key for database
+ * @property cabinetNumber Cabinet number of imported Monitor
+ * @property mgmtNumber Management number from ERP 3
+ * @property modelName Commercial model name of Monitor
+ * @property mfrDate Date of manufactured
+ * @property serialNumber Serial number
+ * @property inch Size of screen
+ * @property ratio Screen Ratio e.g. 16:9 for 1920x1080
+ * @property resolution Screen resolution
+ * @property cable Available ports
+ * @property lastUser Latest user of Monitor
+ * @property importDate Date of imported
+ * @property status Value of status
+ * @property memo Any further description of monitor
+ */
 data class Monitor(
     override var id: Int,
     override val cabinetNumber: Int?,
