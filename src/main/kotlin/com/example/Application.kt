@@ -1,9 +1,6 @@
 package com.example
 
-import com.example.database.ERPDataTable
-import com.example.database.EquipmentTable
-import com.example.database.MonitorTable
-import com.example.database.PCTable
+import com.example.database.*
 import com.example.plugins.configureRouting
 import com.example.plugins.configureTemplating
 import io.ktor.serialization.kotlinx.json.*
@@ -26,7 +23,7 @@ fun main() {
     Database.connect(dbUrl, driver = "com.mysql.cj.jdbc.Driver", user = dbUser, password = dbPass)
     transaction {
         addLogger(Slf4jSqlDebugLogger)
-        SchemaUtils.createMissingTablesAndColumns(EquipmentTable, PCTable, MonitorTable, ERPDataTable, withLogs = true)
+        SchemaUtils.createMissingTablesAndColumns(EquipmentTable, PCTable, MonitorTable, ERPDataTable, LogTable, withLogs = true)
         embeddedServer(
             Netty,
             port = port,
