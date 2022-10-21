@@ -216,10 +216,11 @@ object DatabaseHandler {
             println(e.message)
         } finally {
             when (index) {
-                1 -> pc.removeIf { it.mgmtNumber == mgmtNumber }
-                2 -> laptop.removeIf { it.mgmtNumber == mgmtNumber }
-                3 -> monitor.removeIf { it.mgmtNumber == mgmtNumber }
-            }
+                1 -> pc
+                2 -> laptop
+                3 -> monitor
+                else -> mutableListOf()
+            }.removeIf { it.mgmtNumber == mgmtNumber }
         }
     }
 
