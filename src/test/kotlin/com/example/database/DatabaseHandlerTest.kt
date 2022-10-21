@@ -3,7 +3,6 @@ package com.example.database
 import org.junit.jupiter.api.Test
 
 internal class DatabaseHandlerTest {
-
     @Test
     fun rebuild() {
     }

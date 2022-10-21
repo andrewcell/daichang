@@ -84,21 +84,18 @@ fun Application.configureRouting() {
                 val ram = parameters["inputRAM"]?.toFloatOrNull() ?: 0.0f
                 val os = parameters["inputOS"] ?: ""
                 val inch = if (index == 2) parameters["inputInch"]?.toFloatOrNull() else null
-                DatabaseHandler.insertNewEquipment(
-                    index, PC(
-                        id, cabinetNumber, mgmtNumber, modelName, mfrDate, serial, cpu, hdd, ram, os, inch, lastUser, importDate, status, memo, (index == 2)
-                    )
-                )
+                val pc = PC(
+                    id, cabinetNumber, mgmtNumber, modelName, mfrDate, serial, cpu, hdd, ram, os, inch, lastUser, importDate, status, memo, (index == 2))
+                if (!Validation.validateEquipment(pc)) return@post
+                DatabaseHandler.insertNewEquipment(index, pc)
             } else {
                 val ratio = parameters["inputRatio"] ?: ""
                 val resolution = parameters["inputResolution"] ?: ""
                 val cable = parameters["inputCable"] ?: ""
                 val inch = parameters["inputInch"]?.toFloatOrNull() ?: 0.0f
-                DatabaseHandler.insertNewEquipment(
-                    index, Monitor(
-                        id, cabinetNumber, mgmtNumber, modelName, mfrDate, serial, ratio, resolution,inch, cable, lastUser, importDate, status, memo
-                    )
-                )
+                val monitor = Monitor(id, cabinetNumber, mgmtNumber, modelName, mfrDate, serial, ratio, resolution,inch, cable, lastUser, importDate, status, memo)
+                if (!Validation.validateEquipment(monitor)) return@post
+                DatabaseHandler.insertNewEquipment(index, monitor)
             }
             call.respondRedirect(when (index) {
                 1 -> "/pc"
@@ -208,7 +205,7 @@ fun Application.configureRouting() {
         get("/print/{index}/{mgmtNumber}") {
             val index = call.parameters["index"]?.toIntOrNull()
             val mgmtNumber = call.parameters["mgmtNumber"]
-            if (index == null || mgmtNumber == null) {
+            if (index == null || mgmtNumber == null || !Validation.validateMgmtNumber(mgmtNumber)) {
                 call.respond(HttpStatusCode.BadRequest)
                 return@get
             }
@@ -227,6 +224,11 @@ fun Application.configureRouting() {
             val pc = data.pc ?: emptyList()
             val laptop = data.laptop ?: emptyList()
             val monitor = data.monitor ?: emptyList()
+            arrayOf(pc, laptop, monitor).forEach { lst ->
+                for (mgmtNumber in lst) {
+                    if (!Validation.validateMgmtNumber(mgmtNumber)) return@post
+                }
+            }
             val targetList = DatabaseHandler.getList(1).filter { pc.contains(it.mgmtNumber) } +
                     DatabaseHandler.getList(2).filter { laptop.contains(it.mgmtNumber) } +
                     DatabaseHandler.getList(3).filter { monitor.contains(it.mgmtNumber) }
@@ -277,7 +279,14 @@ fun Application.configureRouting() {
         post("/autofill") {
             val parameter = call.receiveParameters()
             val mgmtNumber = parameter["query"]
-            if (mgmtNumber == null || mgmtNumber == "") return@post
+            if (mgmtNumber == null || mgmtNumber == "") {
+                call.respond(HttpStatusCode.BadRequest, AjaxResponse( false, "Invalid mgmtNumber"))
+                return@post
+            }
+            if (!Validation.validateMgmtNumber(mgmtNumber ?: "")) {
+                call.respond(HttpStatusCode.BadRequest, AjaxResponse(false, "올바르지 않은 관리번호입니다."))
+                return@post
+            }
             val requestIndex = when (call.request.header(HttpHeaders.Referrer)?.split("/")?.last()) {
                 "pc" -> 1
                 "laptop" -> 2
@@ -286,7 +295,7 @@ fun Application.configureRouting() {
             }
             val erpData = DatabaseHandler.getERPDataByMgmtNumber(mgmtNumber, requestIndex)
             if (erpData == null) {
-                call.respond(status = HttpStatusCode.BadRequest, "Not found")
+                call.respond(HttpStatusCode.BadRequest, AjaxResponse( false, "관리 번호를 찾을 수 없습니다."))
                 return@post
             }
             if (erpData.index in 1..2) {

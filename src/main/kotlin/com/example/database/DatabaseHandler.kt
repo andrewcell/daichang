@@ -100,7 +100,7 @@ object DatabaseHandler {
                 }
             }
             if (exists) {
-                MonitorTable.update({ MonitorTable.id eq monitor.id }) {
+                MonitorTable.update({ MonitorTable.equipmentId eq monitor.id }) {
                     insertToDB(iv = it)
                 }
             } else {
@@ -126,7 +126,7 @@ object DatabaseHandler {
                 }
             }
             if (exists) {
-                PCTable.update({ PCTable.id eq pc.id}) {
+                PCTable.update({ PCTable.equipmentId eq pc.id}) {
                     insertToDB(iv = it)
                 }
             } else {
