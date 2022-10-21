@@ -57,6 +57,7 @@ dependencies {
     // https://mvnrepository.com/artifact/org.webjars/bootstrap
     implementation("org.webjars:bootstrap:5.2.0")
     testImplementation(kotlin("test"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
 }
 
 tasks.test {
