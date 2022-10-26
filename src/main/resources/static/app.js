@@ -86,8 +86,42 @@ $(document).ready(() => {
                 return
             }
         })
+        const data = getFormData($("#addModalForm"))
         if (validated) {
-            $("#addModalForm")[0].submit();
+            $.ajax({
+                type: 'post',
+                url: '/save',
+                //processData: false,
+                //contentType: false,
+                contentType: 'application/json',
+                data: JSON.stringify(data)
+            }).then(res => {
+                if (res.success) {
+                    const id = data["inputId"]
+                    const row = $("tr[data-id='" + id + "']")
+                    Object.entries(data).forEach(([v, k]) => {
+                        const toFind = v.replace("input", "").toLowerCase()
+                        const found = row.find("td[data-info='"+ toFind + "'i]")
+                        let correctValue = k
+                        switch (toFind) {
+                            case 'inch':
+                            case 'ram':
+                                const num = k * 1.0
+                                correctValue = num.toFixed(1)
+                                if (toFind == 'inch')
+                                    break;
+                            case 'ssd':
+                            case 'hdd':
+                                correctValue = correctValue + "GB"
+                        }
+                        found.text(correctValue)
+                    })
+                    $("#addModal .modal-body").append("<div class=\"alert alert-success\" role=\"alert\">저장 완료되었습니다.</div>");
+                    setTimeout(removeAlert, 10000);
+                } else {
+                    $("#addModal .modal-body").append("<div class=\"alert alert-danger\" role=\"alert\">오류가 발생하였습니다.: " + res.message + "</div>");
+                }
+            })
         } else {
             $("#addModal .modal-body").append("<div class=\"alert alert-danger\" role=\"alert\">일부 필드가 비어있습니다.</div>");
         }

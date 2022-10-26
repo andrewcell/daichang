@@ -137,7 +137,7 @@ object DatabaseHandler {
         }
     }
 
-    fun insertNewEquipment(index: Int, equipment: Equipment) {
+    fun insertNewEquipment(index: Int, equipment: Equipment): String? {
         when (index) {
             1, 2 -> {
                 equipment as PC
@@ -145,7 +145,7 @@ object DatabaseHandler {
             3 -> {
                 equipment as Monitor
             }
-            else -> return
+            else -> return "Internal server error"
         }
         var equipId = -1
         var updated = false
@@ -190,6 +190,7 @@ object DatabaseHandler {
             }
         } catch (e: Exception) {
             println(e.printStackTrace())
+            return "데이터베이스 기록 중 오류 발생"
         } finally {
             equipment.id = equipId
             if (updated) removeFromList(index, equipment.id)
@@ -199,10 +200,11 @@ object DatabaseHandler {
                 3 -> monitor.add(equipment as Monitor)
             }
         }
+        return null
     }
 
-    fun deleteEquipment(index: Int, mgmtNumber: String, lastUser: String, modelName: String) {
-        if (index == -1) return
+    fun deleteEquipment(index: Int, mgmtNumber: String, lastUser: String, modelName: String): String? {
+        if (index == -1) return "Invalid index"
         try {
             transaction {
                 EquipmentTable.deleteWhere {
@@ -214,6 +216,7 @@ object DatabaseHandler {
             }
         } catch (e: Exception) {
             println(e.message)
+            return "데이터베이스 기록 중 오류 발생"
         } finally {
             when (index) {
                 1 -> pc
@@ -222,6 +225,7 @@ object DatabaseHandler {
                 else -> mutableListOf()
             }.removeIf { it.mgmtNumber == mgmtNumber }
         }
+        return null
     }
 
     private fun removeFromList(index: Int, id: Int) {

@@ -63,8 +63,14 @@ fun Application.configureRouting() {
             }
         }
 
+        /*@Serializable
+        data class SaveRequest(
+            val inputIndex: Int,
+            val input
+        )*/
         post("/save") {
-            val parameters = call.receiveParameters()
+            val message: String?
+            val parameters = call.receive<Map<String, String>>()
             val index = parameters["inputIndex"]?.toIntOrNull() ?: -1
             if (index !in 1..3)
                 call.respond(HttpStatusCode.BadRequest, "Invalid index or number")
@@ -87,7 +93,7 @@ fun Application.configureRouting() {
                 val pc = PC(
                     id, cabinetNumber, mgmtNumber, modelName, mfrDate, serial, cpu, hdd, ram, os, inch, lastUser, importDate, status, memo, (index == 2))
                 if (!Validation.validateEquipment(pc)) return@post
-                DatabaseHandler.insertNewEquipment(index, pc)
+                message = DatabaseHandler.insertNewEquipment(index, pc)
             } else {
                 val ratio = parameters["inputRatio"] ?: ""
                 val resolution = parameters["inputResolution"] ?: ""
@@ -95,14 +101,9 @@ fun Application.configureRouting() {
                 val inch = parameters["inputInch"]?.toFloatOrNull() ?: 0.0f
                 val monitor = Monitor(id, cabinetNumber, mgmtNumber, modelName, mfrDate, serial, ratio, resolution,inch, cable, lastUser, importDate, status, memo)
                 if (!Validation.validateEquipment(monitor)) return@post
-                DatabaseHandler.insertNewEquipment(index, monitor)
+                message = DatabaseHandler.insertNewEquipment(index, monitor)
             }
-            call.respondRedirect(when (index) {
-                1 -> "/pc"
-                2 -> "/laptop"
-                3 -> "/monitor"
-                else -> "/"
-            })
+            call.respond(AjaxResponse(message == null, message))
             //Save changes to worksheet or database
         }
 
@@ -113,14 +114,8 @@ fun Application.configureRouting() {
             val mgmtNumber = parameters["inputMgmtNumber"] ?: ""
             val lastUser = parameters["inputLastUser"] ?: ""
             val modelName = parameters["inputModelName"] ?: ""
-            DatabaseHandler.deleteEquipment(index, mgmtNumber, lastUser, modelName)
-            call.respondRedirect(when (index) {
-                1 -> "/pc"
-                2 -> "/laptop"
-                3 -> "/monitor"
-                else -> "/"
-            })
-
+            val message = DatabaseHandler.deleteEquipment(index, mgmtNumber, lastUser, modelName)
+            call.respond(AjaxResponse(message == null, message))
         }
 
         @Serializable
