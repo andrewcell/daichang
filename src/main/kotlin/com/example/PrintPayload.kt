@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
  * @property monitor Array of mgmtNumbers of Monitor.
  */
 @Serializable
-data class PrintPayLoad(
+data class PrintPayload(
     val pc: List<String>? = null,
     val laptop: List<String>? = null,
     val monitor: List<String>? = null

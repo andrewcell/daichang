@@ -215,7 +215,7 @@ fun Application.configureRouting() {
             // Print multiple Equipments at one time.
             val parameter = call.receiveParameters()
             val payload = parameter["data"] ?: "{}"
-            val data = Json.decodeFromString<PrintPayLoad>(payload)
+            val data = Json.decodeFromString<PrintPayload>(payload)
             val pc = data.pc ?: emptyList()
             val laptop = data.laptop ?: emptyList()
             val monitor = data.monitor ?: emptyList()
