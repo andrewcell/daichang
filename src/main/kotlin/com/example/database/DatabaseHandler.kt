@@ -243,12 +243,14 @@ object DatabaseHandler {
             3 -> monitor
             else -> emptyList()
         }
-        val numbers = lst.mapNotNull {
+        val numbers = lst.sortedBy { it.cabinetNumber }.mapNotNull {
             it.cabinetNumber
         }
         if (numbers.isNotEmpty()) {
-            for (i in 1..numbers.last() + 1) {
-                if (i !in numbers) return i
+            numbers.forEachIndexed { _index, it ->
+                if (it + 1 != numbers[_index + 1]) {
+                    return it + 1
+                }
             }
         }
         return 1
