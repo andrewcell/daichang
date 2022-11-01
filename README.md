@@ -34,12 +34,14 @@ Daichang uses environment variable to configure server.
  - [x] Exposed SQL, data will be save into DBMS (09.28.2022.)
  - [x] Import, export to spreadsheet file (09.30.2022.)
  - [x] Import existing data from ERP, autofill form from them (10.05.2022.)
- - [ ] Advanced Filtering. Almost infinite Filter items
+ - [ ] ~~Advanced Filtering. Almost infinite Filter items~~ (Canceled)
  - [ ] Optimize source codes
  - [ ] Full comments into source code. Implement JavaDoc (Dokka)
  - [ ] Unit tests
 
-## ~~Phase 3~~
- - [ ] Works almost as an ERP system
+## Phase 3 (Planned)
  - [ ] More customization options like database connection
- - [ ] Implement Vue.js 
+ - [ ] Implement Vue.js
+
+## ~~Phase 4~~
+ - [ ] Works almost as an ERP system
