@@ -4,9 +4,13 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.nio.charset.Charset
 
+/**
+ * Constant values that use widely in project.
+ *
+ * @author Seungyeon Choi {@literal <git@vxz.me>}
+ */
 class Constants {
     companion object {
-        const val worksheetPath = "d:/!/전산장비_PC_노트북_모니터.xlsx"
         private val colsStart = listOf(
             "순번" to "cabinetNumber", "관리번호" to "mgmtNumber",
             "모델명" to "modelName", "제조일자" to "mfrDate", "S/N" to "serialNumber"
@@ -18,11 +22,6 @@ class Constants {
         val colsPC = colsStart + listOf("CPU" to "CPU", "HDD" to "HDD", "RAM" to "RAM", "OS" to "OS") + colsEnd
         val colsLaptop = colsStart + listOf("CPU" to "CPU", "HDD" to "HDD", "RAM" to "RAM", "OS" to "OS", "인치" to "inch") + colsEnd
         val colsMonitor = colsStart + listOf("화면비율" to "ratio", "해상도" to "resolution", "인치" to "inch", "케이블종류" to "cable") + colsEnd
-        /*private val colsStart = listOf("순번", "관리번호", "모델명", "제조일자", "S/N")
-        private val colsEnd = listOf("최종사용자", "입고일자", "상태", "비고")
-        val colsPC = colsStart + listOf("CPU", "HDD", "RAM", "OS") + colsEnd
-        val colsLaptop = colsStart + listOf("CPU", "HDD", "RAM", "OS", "인치") + colsEnd
-        val colsMonitor = colsStart + listOf("화면비율", "해상도", "인치", "케이블종류") + colsEnd*/
 
         val staticData = this::class.java.classLoader.getResource("data.json")
             ?.let { Json.decodeFromString<StaticData>(it.readText(Charset.defaultCharset())) }

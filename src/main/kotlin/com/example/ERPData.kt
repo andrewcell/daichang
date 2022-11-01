@@ -16,6 +16,7 @@ import kotlinx.serialization.Serializable
  * @property var5 Ratio (monitor)
  * @property lastUser Last user or store of equipment
  * @property id primary key id in database. Can be null if not written to database yet.
+ * @author Seungyeon Choi {@literal <git@vxz.me>}
  */
 @Serializable
 data class ERPData(

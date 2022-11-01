@@ -35,7 +35,7 @@ Daichang uses environment variable to configure server.
  - [x] Import, export to spreadsheet file (09.30.2022.)
  - [x] Import existing data from ERP, autofill form from them (10.05.2022.)
  - [ ] ~~Advanced Filtering. Almost infinite Filter items~~ (Canceled)
- - [ ] Optimize source codes
+ - [x] Optimize source codes (11.01.2022.)
  - [ ] Full comments into source code. Implement JavaDoc (Dokka)
  - [ ] Unit tests
 

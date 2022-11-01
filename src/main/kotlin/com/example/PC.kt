@@ -20,6 +20,7 @@ import java.time.LocalDate
  * @property status Value of status
  * @property memo Any further description of PC
  * @property isLaptop Is it laptop
+ * @author Seungyeon Choi {@literal <git@vxz.me>}
  */
 data class PC(
     override var id: Int,

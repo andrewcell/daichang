@@ -18,6 +18,7 @@ import java.time.LocalDate
  * @property importDate Date of imported
  * @property status Value of status
  * @property memo Any further description of monitor
+ * @author Seungyeon Choi {@literal <git@vxz.me>}
  */
 data class Monitor(
     override var id: Int,

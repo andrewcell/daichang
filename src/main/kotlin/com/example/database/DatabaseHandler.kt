@@ -155,7 +155,7 @@ object DatabaseHandler {
                 /*val existsEquipId = if (equipment.id != -1) {
                     EquipmentTable.slice(EquipmentTable.id).select { EquipmentTable.id eq equipment.id }.firstOrNull()?.get(EquipmentTable.id)
                 } else null*/ // Disabled for prevent duplicate insert from spreadsheet import. Without it, Very poor performance.
-                // Check every equipment its exists. Very poor performance. Change to above if it feels too slow.
+                // Check every equipment its exists. Very poor performance. Comment above area if it feels too slow.
                 val existsEquipId = EquipmentTable.slice(EquipmentTable.id).select { EquipmentTable.id eq equipment.id }.firstOrNull()?.get(EquipmentTable.id)
                 fun insertToDB(iv: UpdateStatement? = null, k: InsertStatement<Number>? = null) {
                     val i = iv ?: k

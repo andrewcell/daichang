@@ -7,6 +7,7 @@ import kotlinx.serialization.Serializable
  * @property pc Array of mgmtNumbers of PC.
  * @property laptop Array of mgmtNumbers of Laptop.
  * @property monitor Array of mgmtNumbers of Monitor.
+ * @author Seungyeon Choi {@literal <git@vxz.me>}
  */
 @Serializable
 data class PrintPayload(
