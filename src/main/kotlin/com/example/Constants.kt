@@ -6,10 +6,16 @@ import java.nio.charset.Charset
 
 /**
  * Constant values that use widely in project.
- *
  * @author Seungyeon Choi {@literal <git@vxz.me>}
  */
 class Constants {
+    /**
+     * @property colsPC columns for list of PCs table
+     * @property colsLaptop columns for list of laptops table
+     * @property colsMonitor columns for list of monitors table
+     * @property staticData data like Manufacturers, Model names read from data.json in resources folder
+     * @property badRequest Commonly used bad request AjaxResponse for Routing
+     */
     companion object {
         private val colsStart = listOf(
             "순번" to "cabinetNumber", "관리번호" to "mgmtNumber",
