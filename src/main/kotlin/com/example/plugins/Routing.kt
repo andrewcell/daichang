@@ -108,7 +108,7 @@ fun Application.configureRouting() {
         }
 
         post("/delete") {
-            val parameters = call.receiveParameters()
+            val parameters = call.receive<Map<String, String>>()
             val index = parameters["inputIndex"]?.toIntOrNull() ?: -1
             //val id = parameters["inputId"]?.toIntOrNull() ?: -1
             val mgmtNumber = parameters["inputMgmtNumber"] ?: ""
@@ -350,6 +350,16 @@ fun Application.configureRouting() {
             val result = DatabaseHandler.rebuild()
             DatabaseHandler.isBusy = false
             call.respond(AjaxResponse(result == null, result))
+        }
+
+        post("/cabinetNumber") {
+            val parameter = call.receive<Map<String, String>>()
+            val index = parameter["index"]?.toIntOrNull()
+            if (index != null) {
+                call.respond(AjaxResponse(true, DatabaseHandler.getEmptyCabinetNumber(index).toString()))
+            } else {
+                call.respond(AjaxResponse(false, "Invalid index."))
+            }
         }
 
         // Static plugin. Try to access `/static/index.html`

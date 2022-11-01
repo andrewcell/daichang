@@ -153,11 +153,11 @@ object WorkSheetHandler {
                     2 -> Constants.colsLaptop
                     3 -> Constants.colsMonitor
                     else -> return null
-                }.toMutableList()
+                }.map { it.first }.toMutableList()
                 colList.removeLast()
                 colList.add("empty1")
                 colList.add("empty2")
-                colList.add(Constants.colsPC.last())
+                colList.add(Constants.colsPC.last().first)
                 for((index, col) in colList.withIndex()) {
                     colLabelRow.createCell(index).setCellValue(col)
                 }

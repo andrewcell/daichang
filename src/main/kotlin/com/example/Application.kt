@@ -28,7 +28,7 @@ fun main() {
             Netty,
             port = port,
             host = host,
-            watchPaths = listOf("classes", "/resources/static/", "resources")
+            watchPaths = listOf("classes", "resources")
         ) {
             configureTemplating()
             configureRouting()

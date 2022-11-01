@@ -22,6 +22,7 @@ $(document).ready(() => {
             alertColor = "danger"
         }
         $(target).prepend("<div class=\"alert alert-" + alertColor + "\" role=\"alert\">" + message + "</div>") // Add alert for message.
+        setTimeout(removeAlert, 10000); // 10 seconds to disappear.
     }
     const removeAlert = () => {
         $(".alert").remove();
@@ -52,7 +53,8 @@ $(document).ready(() => {
         $("#inputOS").val("Win 10"); // Set Windows 10. Windows 10 is out 7 years from now. Why Legacy OSes still hanging around?
         $("#addModalDeleteButton").hide(); // Hide delete button used in when modal use as modification modal.
     });
-    $("tr").on('click', event => { // If click row of table clicked.
+    $("table").on('click', "tr", function (event) { // If click row of table clicked.
+        removeAlert();
         $("#addModalDeleteButton").show(); // Make visible delete button. 
         const selected = $(event.target)[0].parentElement.children; // Selected row
         const id = $(event.target)[0].parentElement.attributes["data-id"].value;
@@ -76,6 +78,19 @@ $(document).ready(() => {
             }
         });
     });
+    const refreshEmptyCabinetNumber = () => {
+        const index = $("#inputIndex").val();
+        $.ajax({
+            type: 'post',
+            url: '/cabinetNumber',
+            contentType: 'application/json',
+            data: JSON.stringify({index: index})
+        }).then(res => {
+            if (res.success) {
+                $("#emptyNumber").text(res.message);
+            }
+        })
+    }
     $("#addModalSaveButton").on('click', () => { // If click save button, Submit form in Modal.
         removeAlert();
         const required = $('input,textarea,select').filter('[required]:visible');
@@ -99,9 +114,12 @@ $(document).ready(() => {
                 if (res.success) {
                     const id = data["inputId"]
                     const row = $("tr[data-id='" + id + "']")
+                    table.row(row).remove();
+                    const rowArray = [];
+                    const dataInfoArray = [];
                     Object.entries(data).forEach(([v, k]) => {
-                        const toFind = v.replace("input", "").toLowerCase()
-                        const found = row.find("td[data-info='"+ toFind + "'i]")
+                        const toFind = v.replace("input", "").toLowerCase();
+                        //const found = row.find("td[data-info=  '"+ toFind + "'i]")
                         let correctValue = k
                         switch (toFind) {
                             case 'inch':
@@ -114,10 +132,38 @@ $(document).ready(() => {
                             case 'hdd':
                                 correctValue = correctValue + "GB"
                         }
-                        found.text(correctValue)
+                        let colTag = v.substring(5)
+                        switch (colTag) {
+                            case "CPU":
+                            case "RAM":
+                            case "HDD":
+                            case "OS":
+                                break;
+                            case "Serial":
+                                colTag = "serialNumber"
+                            default:
+                                const str = colTag
+                                colTag = str.charAt(0).toLowerCase() + colTag.slice(1)
+                        }
+      
+                        Array.prototype.forEach.call($("th"), (col, i) => {
+                            if (col.getAttribute("data-info") === colTag) {
+                                colTag = (colTag === "serialNumber" ? "serial" : colTag)
+                                dataInfoArray[i] = colTag;
+                                rowArray[i] = correctValue;
+                                return;
+                            }
+                        })
+                    });
+                    const newRowNode = table.row.add(rowArray).draw(false).node()
+                    newRowNode.setAttribute('data-bs-toggle', "modal");
+                    newRowNode.setAttribute('data-bs-target', "#addModal");
+                    newRowNode.setAttribute('data-id', id);
+                    Array.prototype.forEach.call(newRowNode.children, (value, index) => {
+                        value.setAttribute("data-info", dataInfoArray[index]);
                     })
                     $("#addModal .modal-body").append("<div class=\"alert alert-success\" role=\"alert\">저장 완료되었습니다.</div>");
-                    setTimeout(removeAlert, 10000);
+                    refreshEmptyCabinetNumber();
                 } else {
                     $("#addModal .modal-body").append("<div class=\"alert alert-danger\" role=\"alert\">오류가 발생하였습니다.: " + res.message + "</div>");
                 }
@@ -127,8 +173,28 @@ $(document).ready(() => {
         }
     });
     $("#deleteConfirmButton").on('click', () => { // If click confirm delete button, Change form url to /delete, and submit.
-        $("#addModalForm").attr('action', '/delete');
-        $("#addModalForm")[0].submit();
+        const data = getFormData($("#addModalForm"));
+        $.ajax({
+            type: 'post',
+            url: '/delete',
+            //processData: false,
+            //contentType: false,
+            contentType: 'application/json',
+            data: JSON.stringify(data)
+        }).then(res => { 
+            if (res.success) {
+                const id = data["inputId"]
+                if (id != null) {
+                    table.row($("tr[data-id='" + id + "']")).remove().draw(false);
+                    addAlert(true, "삭제 되었습니다.", "#app")
+                } else {
+                    addAlert(false, "Invalid id value is pointed.", "#app")
+                }
+            } else {
+                addAlert(false, "삭제되지 않았습니다. " + res.message, "#app")
+            }
+            $("#deleteConfirmModal").modal('hide');
+        });
     });
     $("#filterModalApplyButton").on('click', () => { // Filter button clicked.
         $.ajax({

@@ -27,18 +27,21 @@ class TableTemplate(private val index: Byte) : Template<FlowContent> {
         else -> Constants.colsPC
     }
     override fun FlowContent.apply() {
+        val dataInfoAttr = "data-info"
         insert(PanelTemplate()) {}
         // index 1 pc 2 laptop 3 monitor
         table("table") {
             thead {
                 tr {
                     colList.forEach {
-                        th(scope = ThScope.col) { +it }
+                        th(scope = ThScope.col) {
+                            attributes[dataInfoAttr] = it.second
+                            +it.first
+                        }
                     }
                 }
             }
             tbody {
-                val dataInfoAttr = "data-info"
                 totalCount = list.size
                 list.forEach {
                     if (!modelNames.contains(it.modelName)) modelNames.add(it.modelName) // Add model name to list for filter.
@@ -149,6 +152,6 @@ class TableTemplate(private val index: Byte) : Template<FlowContent> {
             list.distinct().sorted()
         } else null
         insert(AddModalTemplate(index.toInt(), list.map { it.modelName }.distinct().sorted(), cpuList)) {}
-        insert(FilterModalTemplate(index.toInt(), modelNames, lastUsers, colList)) { }
+        insert(FilterModalTemplate(index.toInt(), modelNames, lastUsers, colList.map { it.first })) { }
     }
 }
