@@ -1,6 +1,10 @@
 package com.example.database
 
 import com.example.*
+import com.example.database.DatabaseHandler.isBusy
+import com.example.database.DatabaseHandler.laptop
+import com.example.database.DatabaseHandler.monitor
+import com.example.database.DatabaseHandler.pc
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.statements.InsertStatement
@@ -9,17 +13,30 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+/**
+ * All-in-one handler for database related jobs
+ * @property pc List of pc objects (for cache)
+ * @property laptop List of laptop objects (for cache)
+ * @property monitor List of monitor objects (for cache)
+ * @property isBusy Use for limit to do resource heavy job one at a time.
+ * @author Seungyeon Choi {@literal <git@vxz.me>}
+ */
 object DatabaseHandler {
     private val pc: MutableList<PC> = mutableListOf()
     private val laptop: MutableList<PC> = mutableListOf()
     private val monitor: MutableList<Monitor> = mutableListOf()
     var isBusy = false
+
     init {
         buildCache()
     }
+
+    /**
+     * Build cache(list) for make less connectivity to database server.
+     */
     private fun buildCache() {
         transaction {
-            (EquipmentTable innerJoin PCTable).select { EquipmentTable.id eq PCTable.equipmentId }.forEach {
+            (EquipmentTable innerJoin PCTable).select { EquipmentTable.id eq PCTable.equipmentId }.forEach { // select PC and laptops
                 val inch = it[PCTable.inch]
                 val pcEntry = PC(
                     id = it[EquipmentTable.id],
@@ -43,7 +60,7 @@ object DatabaseHandler {
                     laptop.add(pcEntry)
                 } else pc.add(pcEntry)
             }
-            (EquipmentTable innerJoin MonitorTable).select { EquipmentTable.id eq MonitorTable.equipmentId }.forEach {
+            (EquipmentTable innerJoin MonitorTable).select { EquipmentTable.id eq MonitorTable.equipmentId }.forEach { // select monitors
                 monitor.add(Monitor(
                     id = it[EquipmentTable.id],
                     cabinetNumber = it[EquipmentTable.cabinetNumber] ?: -1,
@@ -64,6 +81,10 @@ object DatabaseHandler {
         }
     }
 
+    /**
+     * clear and rebuild all caches
+     * @return error message. If no exception threw, return null as success signal
+     */
     fun rebuild(): String? {
         try {
             pc.clear()
@@ -76,17 +97,33 @@ object DatabaseHandler {
         return null
     }
 
+    /**
+     * return list of equipments lists.
+     * first pc, second laptop, third monitor
+     * @return list of all lists. (0 = pc, 1 = laptop, 2 = monitor)
+     */
     fun getAll(): Array<List<Equipment>> {
         return arrayOf(pc, laptop, monitor)
     }
 
+    /**
+     * return equipment list by index
+     * @param index Index number of equipment type. 0=PC, 1=Laptop, 2=Monitor
+     * @return List of equipments
+     */
     fun getList(index: Int): List<Equipment> = when (index) {
         1 -> pc
         2 -> laptop
         3 -> monitor
-        else -> emptyList()
+        else -> emptyList() // return empty list if invalid index number passed.
     }.toList()
 
+    /**
+     * Insert monitor or update existing monitor row
+     * @param monitor monitor to insert or update
+     * @param equipId id from equipments table. Mandatory.
+     * @param exists Is it exists (Is it update)
+     */
     private fun insertNewMonitor(monitor: Monitor, equipId: Int, exists: Boolean) {
         transaction {
             fun insertToDB(iv: UpdateStatement? = null, k: InsertStatement<Number>? = null) {
@@ -112,6 +149,12 @@ object DatabaseHandler {
         }
     }
 
+    /**
+     * Insert monitor or update existing monitor row
+     * @param pc PC to insert or update
+     * @param equipmentId id from equipments table. Mandatory.
+     * @param exists Is it exists (Is it update)
+     */
     private fun insertNewPC(pc: PC, equipmentId: Int, exists: Boolean) {
         transaction {
             fun insertToDB(iv: UpdateStatement? = null, k: InsertStatement<Number>? = null) {
@@ -120,7 +163,7 @@ object DatabaseHandler {
                    // i[PCTable.id] = equipmentId
                     i[PCTable.equipmentId] = equipmentId
                     i[PCTable.cpu] = pc.cpu
-                    i[PCTable.hdd] = pc.hdd.toInt()
+                    i[PCTable.hdd] = pc.hdd
                     i[PCTable.ram] = pc.ram.toInt()
                     i[PCTable.os] = pc.OS
                     i[PCTable.inch] = pc.inch
@@ -138,6 +181,12 @@ object DatabaseHandler {
         }
     }
 
+    /**
+     * Insert or update equipment to database
+     * @param index Index number of equipment type
+     * @param equipment Equipment to insert or update
+     * @return error message. return null if no problem found.
+     */
     fun insertNewEquipment(index: Int, equipment: Equipment): String? {
         when (index) {
             1, 2 -> {
@@ -156,7 +205,7 @@ object DatabaseHandler {
                     EquipmentTable.slice(EquipmentTable.id).select { EquipmentTable.id eq equipment.id }.firstOrNull()?.get(EquipmentTable.id)
                 } else null*/ // Disabled for prevent duplicate insert from spreadsheet import. Without it, Very poor performance.
                 // Check every equipment its exists. Very poor performance. Comment above area if it feels too slow.
-                val existsEquipId = EquipmentTable.slice(EquipmentTable.id).select { EquipmentTable.id eq equipment.id }.firstOrNull()?.get(EquipmentTable.id)
+                val existsEquipId = EquipmentTable.slice(EquipmentTable.id).select { EquipmentTable.id eq equipment.id }.firstOrNull()?.get(EquipmentTable.id) //find it is exists
                 fun insertToDB(iv: UpdateStatement? = null, k: InsertStatement<Number>? = null) {
                     val i = iv ?: k
                     if (i != null) {
@@ -171,14 +220,14 @@ object DatabaseHandler {
                         i[EquipmentTable.memo] = equipment.memo
                     }
                 }
-                equipId = if (existsEquipId != null) {
+                equipId = if (existsEquipId != null) { // if equipId is not null, it is exists, and need to update.
                     EquipmentTable.update({ EquipmentTable.id eq existsEquipId }) {
                         insertToDB(it)
                     }
                     updated = true
                     existsEquipId
                 } else {
-                    EquipmentTable.insert {
+                    EquipmentTable.insert { // If equipId null, insert to equipments table and get id of new row.
                         insertToDB(k = it)
                     }.resultedValues?.firstOrNull()?.get(EquipmentTable.id) ?: -1
                 }
@@ -195,7 +244,7 @@ object DatabaseHandler {
         } finally {
             equipment.id = equipId
             if (updated) removeFromList(index, equipment.id)
-            when (index) {
+            when (index) { // Add new equipment to cache list
                 1 -> pc.add(equipment as PC)
                 2 -> laptop.add(equipment as PC)
                 3 -> monitor.add(equipment as Monitor)
@@ -204,15 +253,24 @@ object DatabaseHandler {
         return null
     }
 
+    /**
+     * Delete equipment from database. Get multiple parameters for validate to prevent macro or something.
+     * All parameters must be matched to equipment to delete.
+     * @param index Index number of equipment type
+     * @param mgmtNumber Management number of equipment to delete
+     * @param lastUser Last user name of equipment to delete
+     * @param modelName Model name of equipment to delete
+     * @return error message. return null If no problem is found
+     */
     fun deleteEquipment(index: Int, mgmtNumber: String, lastUser: String, modelName: String): String? {
-        if (index == -1) return "Invalid index"
+        if (index !in 1..3) return "Invalid index" // Check index number
         try {
             transaction {
                 EquipmentTable.deleteWhere {
                     //(EquipmentTable.id eq id) and
                     (EquipmentTable.mgmtNumber eq mgmtNumber) and
                     (EquipmentTable.lastUser eq lastUser) and
-                    (EquipmentTable.modelName eq modelName)
+                    (EquipmentTable.modelName eq modelName) // 3 items must be matched to delete
                 }
             }
         } catch (e: Exception) {
@@ -224,11 +282,16 @@ object DatabaseHandler {
                 2 -> laptop
                 3 -> monitor
                 else -> mutableListOf()
-            }.removeIf { it.mgmtNumber == mgmtNumber }
+            }.removeIf { it.mgmtNumber == mgmtNumber } // Remove equipment from cache list
         }
         return null
     }
 
+    /**
+     * Remove equipment from cache list
+     * @param index Index number of equipment type
+     * @param id Id of equipment to delete
+     */
     private fun removeFromList(index: Int, id: Int) {
         when (index) {
             1 -> pc.removeIf { it.id == id }
@@ -237,6 +300,11 @@ object DatabaseHandler {
         }
     }
 
+    /**
+     * Get empty cabinet number to register new equipment
+     * @param index Index number of equipment type
+     * @return Empty cabinet number that can use
+     */
     fun getEmptyCabinetNumber(index: Int): Int {
         val lst = when (index) {
             1 -> pc
@@ -244,19 +312,23 @@ object DatabaseHandler {
             3 -> monitor
             else -> emptyList()
         }
-        val numbers = lst.sortedBy { it.cabinetNumber }.mapNotNull {
+        val numbers = lst.sortedBy { it.cabinetNumber }.mapNotNull { // Sort to forEach, get list of cabinet numbers
             it.cabinetNumber
         }
         if (numbers.isNotEmpty()) {
             numbers.forEachIndexed { _index, it ->
-                if (it + 1 != numbers[_index + 1]) {
+                if (it + 1 != numbers[_index + 1]) { // check next number is not in sequential
                     return it + 1
                 }
             }
         }
-        return 1
+        return 1 // If list is empty or Something gone wrong, return 1
     }
 
+    /**
+     * Using list of ERPData objects, insert to ERPData table
+     * @param list list of ERPData objects to import
+     */
     fun importERP(list: List<ERPData>) {
         transaction {
             //ERPDataTable.deleteAll()
@@ -274,6 +346,12 @@ object DatabaseHandler {
         }
     }
 
+    /**
+     * Get ERPData object from database by management number. Normally use for autofill form by management number
+     * @param mgmtNumber Management number to find
+     * @param requestIndex Index number of equipment type
+     * @return ERPData object. Return null if mgmtNumber is invalid or not found
+     */
     fun getERPDataByMgmtNumber(mgmtNumber: String, requestIndex: Int): ERPData? {
         var erpData: ERPData? = null
         transaction {
@@ -294,16 +372,25 @@ object DatabaseHandler {
         return erpData
     }
 
+    /**
+     * Get CPU name by equipment's model name. Search fromd database
+     * @param model model name of equipment
+     * @return CPU name. Search by model name in database
+     */
     fun getCPUByModelName(model: String): String? {
         var cpu: String? = null
         transaction {
-            val found = EquipmentTable.leftJoin(PCTable).slice(PCTable.cpu).select { EquipmentTable.modelName like "$model%" }.limit(1).firstOrNull()
+            val found = EquipmentTable.leftJoin(PCTable).slice(PCTable.cpu).select { EquipmentTable.modelName like "$model%" }.limit(1).firstOrNull() // select by model name and get first one
                     ?: return@transaction
             cpu = found[PCTable.cpu]
         }
         return cpu
     }
 
+    /**
+     * Wipe all ERPData table
+     * @return error message. return null if no problem found.
+     */
     fun cleanERPData(): String? {
         var message: String? = null
         try {
