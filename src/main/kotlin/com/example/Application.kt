@@ -16,6 +16,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 /**
  * Start-up
+ * @author Seungyeon Choi {@literal <git@vxz.me>}
  */
 fun main() {
     val port = System.getenv("daichang_port")?.toIntOrNull() ?: 8080 // Port for web server
