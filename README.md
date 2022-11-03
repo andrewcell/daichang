@@ -37,7 +37,7 @@ Daichang uses environment variable to configure server.
  - [ ] ~~Advanced Filtering. Almost infinite Filter items~~ (Canceled)
  - [x] Optimize source codes (11.01.2022.)
  - [ ] Full comments into source code. Implement JavaDoc (Dokka)
- - [ ] Unit tests
+ - [x] Unit tests (Do continuously)
 
 ## Phase 3 (Planned)
  - [ ] More customization options like database connection
