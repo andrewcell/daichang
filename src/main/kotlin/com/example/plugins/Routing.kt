@@ -24,7 +24,7 @@ fun Application.configureRouting() {
         path = "/webjars" //defaults to /webjars
     }
     routing {
-        get("/") {
+        get("/") { // Index page
             val equipments = DatabaseHandler.getAll()
             call.respondHtmlTemplate(LayoutTemplate()) {
                 content {
@@ -32,28 +32,28 @@ fun Application.configureRouting() {
                 }
             }
         }
-        get("/pc") {
+        get("/pc") { // PC lists
             call.respondHtmlTemplate(LayoutTemplate()) {
                 content {
                     insert(TableTemplate(1)) {}
                 }
             }
         }
-        get("/laptop") {
+        get("/laptop") { // Laptop list
             call.respondHtmlTemplate(LayoutTemplate()) {
                 content {
                     insert(TableTemplate(2)) {}
                 }
             }
         }
-        get("/monitor") {
+        get("/monitor") { // Monitor list
             call.respondHtmlTemplate(LayoutTemplate()) {
                 content {
                     insert(TableTemplate(3)) {}
                 }
             }
         }
-        get("/blank") {
+        get("/blank") { // Blank page for test layout template
             call.respondHtmlTemplate(LayoutTemplate()) {
                 content {
                     p {
