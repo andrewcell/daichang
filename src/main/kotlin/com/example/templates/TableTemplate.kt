@@ -20,7 +20,7 @@ import java.time.format.DateTimeFormatter
  */
 class TableTemplate(private val index: Byte) : Template<FlowContent> {
     private var totalCount = 0
-    private var list: List<Equipment> = DatabaseHandler.getList(index.toInt())
+    private var list: List<Equipment> = DatabaseHandler.getList(index.toInt()) ?: emptyList()
     private val modelNames = mutableListOf<String>()
     private val lastUsers = mutableListOf<String>()
     private val colList = when(index.toInt()) { // Every equipment type has different columns
@@ -153,12 +153,12 @@ class TableTemplate(private val index: Byte) : Template<FlowContent> {
             +"총 개수: $totalCount"
         }
         val cpuList = if (index in 1..2) {
-            val list = DatabaseHandler.getList(index.toInt()).mapNotNull {
+            val list = DatabaseHandler.getList(index.toInt())?.mapNotNull {
                 if (it is PC)
                     it.cpu
                 else null
             }
-            list.distinct().sorted()
+            list?.distinct()?.sorted()
         } else null
         insert(AddModalTemplate(index.toInt(), list.map { it.modelName }.distinct().sorted(), cpuList)) {} // Add addModal to page
         insert(FilterModalTemplate(index.toInt(), modelNames, lastUsers, colList.map { it.first })) { } // Add filterModal to page

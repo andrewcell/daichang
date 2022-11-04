@@ -1,5 +1,6 @@
 package com.example
 
+import kotlinx.serialization.Serializable
 import java.time.LocalDate
 
 /**
@@ -19,15 +20,17 @@ import java.time.LocalDate
  * @property memo Any further description of monitor
  * @author Seungyeon Choi {@literal <git@vxz.me>}
  */
-interface Equipment {
+//@
+@Serializable
+sealed interface Equipment {
     var id: Int
     val cabinetNumber: Int?
     val mgmtNumber: String
     val modelName: String
-    val mfrDate: LocalDate
+    @Serializable(LocalDateSerializer::class) val mfrDate: LocalDate
     val serialNumber: String
     val lastUser: String
-    val importDate: LocalDate
+    @Serializable(LocalDateSerializer::class) val importDate: LocalDate
     val status: Status
     val memo: String
 }

@@ -1,13 +1,13 @@
 package com.example
 
+import com.example.controllers.equipment
 import com.example.database.*
-import com.example.plugins.configureRouting
-import com.example.plugins.configureTemplating
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.routing.*
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Slf4jSqlDebugLogger
@@ -34,8 +34,11 @@ fun main() {
             host = host,
             watchPaths = listOf("classes", "resources")
         ) {
-            configureTemplating()
-            configureRouting()
+      //      configureTemplating()
+//            configureRouting()
+            install(Routing) {
+                equipment()
+            }
             install(ContentNegotiation) {
                 json()
             }

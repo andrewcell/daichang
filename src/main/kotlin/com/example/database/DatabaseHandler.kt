@@ -107,16 +107,24 @@ object DatabaseHandler {
     }
 
     /**
+     * return merged list of equipments lists
+     * @return all list of equipment merged
+     */
+    fun getMergedAll(): List<Equipment> {
+        return pc + laptop + monitor
+    }
+
+    /**
      * return equipment list by index
      * @param index Index number of equipment type. 0=PC, 1=Laptop, 2=Monitor
      * @return List of equipments
      */
-    fun getList(index: Int): List<Equipment> = when (index) {
+    fun getList(index: Int): List<Equipment>? = when (index) {
         1 -> pc
         2 -> laptop
         3 -> monitor
-        else -> emptyList() // return empty list if invalid index number passed.
-    }.toList()
+        else -> null // return null if invalid index number passed.
+    }?.toList()
 
     /**
      * Insert monitor or update existing monitor row
@@ -401,5 +409,23 @@ object DatabaseHandler {
             message = e.message
         }
         return message
+    }
+
+    /**
+     * Get equipment by primary key id
+     * @param id Id of equipment
+     * @return equipment object
+     */
+    fun getEquipmentById(id: Int): Equipment? {
+        return getMergedAll().find { it.id == id }
+    }
+
+    /**
+     * Get equipment by management number in ERP 3
+     * @param mgmtNumber management number of equipment
+     * @return equipment object
+     */
+    fun getEquipmentByMgmtNumber(mgmtNumber: String): Equipment? {
+        return getMergedAll().find { it.mgmtNumber == mgmtNumber }
     }
 }

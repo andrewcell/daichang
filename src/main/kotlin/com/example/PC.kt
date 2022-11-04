@@ -1,5 +1,6 @@
 package com.example
 
+import kotlinx.serialization.Serializable
 import java.time.LocalDate
 
 /**
@@ -22,12 +23,13 @@ import java.time.LocalDate
  * @property isLaptop Is it laptop
  * @author Seungyeon Choi {@literal <git@vxz.me>}
  */
+@Serializable
 data class PC(
     override var id: Int,
     override val cabinetNumber: Int?,
     override val mgmtNumber: String,
     override val modelName: String,
-    override val mfrDate: LocalDate,
+    @Serializable(LocalDateSerializer::class) override val mfrDate: LocalDate,
     override val serialNumber: String,
     val cpu: String,
     val hdd: Int,
@@ -35,7 +37,7 @@ data class PC(
     val OS: String,
     val inch: Float? = null,
     override val lastUser: String,
-    override val importDate: LocalDate,
+    @Serializable(LocalDateSerializer::class) override val importDate: LocalDate,
     override val status: Status,
     override val memo: String,
     val isLaptop: Boolean = false,

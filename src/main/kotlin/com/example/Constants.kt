@@ -31,7 +31,7 @@ class Constants {
 
         val staticData = this::class.java.classLoader.getResource("data.json")
             ?.let { Json.decodeFromString<StaticData>(it.readText(Charset.defaultCharset())) }
-        val badRequest = AjaxResponse(false, "잘못된 요청입니다.")
+        val badRequest = AjaxResponse(false, ResponseMessage.BAD_REQUEST)
 
         /**
          * Return inch (15.6 or 12.5 or 14.0 by laptop) for autofill routing.
