@@ -5,6 +5,13 @@ import kotlinx.html.*
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * Add Modal template. Modal for add or modify equipment
+ * @param index Index number for which equipment type going to add or modify
+ * @param modelList List of model names for auto-listing model name input field
+ * @param cpuList List of cpus for auto-listing cpu input field
+ * @author Seungyeon Choi {@literal <git@vxz.me>}
+ */
 class AddModalTemplate(
     private val index: Int,
     private val modelList: List<String>,
@@ -12,7 +19,7 @@ class AddModalTemplate(
 ) : Template<FlowContent> {
     override fun FlowContent.apply() {
         insert(ModalTemplate("addModal")) {
-            insert(ModalTemplate("deleteConfirmModal")) {
+            insert(ModalTemplate("deleteConfirmModal")) { // Delete confirm modal for prevent accidental click delete button
                 modalTitle { +"삭제 확인" }
                 modalBody { +"정말로 삭제합니까?"}
                 modalButton {
@@ -34,7 +41,7 @@ class AddModalTemplate(
                 }
             }
             modalBody {
-                form(action = "/save", method = FormMethod.post) {
+                form(action = "/save", method = FormMethod.post) { // action is deprecated.
                     id = "addModalForm"
                     insert(InputTemplate("inputCabinetNumber", "456", inputRequired = true)) {
                         inputLabel { +"순번" }
@@ -114,7 +121,7 @@ class AddModalTemplate(
                             name = "inputStatus"
                             form = "addModalForm"
                             id = "inputStatus"
-                            option { +"사용가능" }
+                            option { +"사용가능" } // consider change to generate list from Status enum class
                             option { +"사용불가" }
                             option { +"폐기예정" }
                         }
@@ -140,7 +147,7 @@ class AddModalTemplate(
                 }
             }
             modalButton {
-                button(type = ButtonType.button, classes = "btn btn-danger") {
+                button(type = ButtonType.button, classes = "btn btn-danger") { // Show deleteConfimModal button
                     id = "addModalDeleteButton"
                     attributes["data-bs-toggle"] = "modal"
                     attributes["data-bs-target"] = "#deleteConfirmModal"

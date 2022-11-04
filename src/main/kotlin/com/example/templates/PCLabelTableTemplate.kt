@@ -6,6 +6,11 @@ import kotlinx.html.*
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * Single monitor cabinet label template
+ * @param pc PC object to print
+ * @author Seungyeon Choi {@literal <git@vxz.me>}
+ */
 class PCLabelTableTemplate(val pc: PC) : Template<FlowContent> {
     override fun FlowContent.apply() {
         table {

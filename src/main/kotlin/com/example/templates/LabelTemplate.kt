@@ -6,9 +6,14 @@ import com.example.PC
 import io.ktor.server.html.*
 import kotlinx.html.*
 
+/**
+ * Template for print cabinet labels
+ * @param list List of equipments to print label
+ * @author Seungyeon Choi {@literal <git@vxz.me>}*
+ */
 class LabelTemplate(val list: List<Equipment>) : Template<HTML> {
     override fun HTML.apply() {
-        head {
+        head { // we need different css and javascript files to keep layout of label
             link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css") {
                 attributes["integrity"] =
                     "sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A=="
@@ -33,9 +38,9 @@ class LabelTemplate(val list: List<Equipment>) : Template<HTML> {
             link(rel = "stylesheet", href = "/static/table.css")
         }
         body {
-            style = "font-family: \"Noto Sans KR\", sans-serif;"
+            style = "font-family: \"Noto Sans KR\", sans-serif;" // font
             script {
-                +"window.print();"
+                +"window.print();" // send browser to show print screen automatically
             }
             div {
                 style = "width: 21cm;"

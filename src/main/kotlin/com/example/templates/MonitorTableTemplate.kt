@@ -2,12 +2,16 @@ package com.example.templates
 
 import com.example.Monitor
 import io.ktor.server.html.*
-import kotlinx.html.FlowContent
 import kotlinx.html.*
 import java.text.SimpleDateFormat
 import java.time.format.DateTimeFormatter
 import java.util.*
 
+/**
+ * Single monitor cabinet label template
+ * @param monitor Monitor object to print
+ * @author Seungyeon Choi {@literal <git@vxz.me>}
+ */
 class MonitorTableTemplate(val monitor: Monitor) : Template<FlowContent> {
     override fun FlowContent.apply() {
         table("monitorTable1") {

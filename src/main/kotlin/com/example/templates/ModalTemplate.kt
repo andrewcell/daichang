@@ -1,9 +1,17 @@
 package com.example.templates
 
 import io.ktor.server.html.*
-import kotlinx.html.FlowContent
 import kotlinx.html.*
 
+/**
+ * Template for all the modals
+ * @param modalId id for Modal and modal tag
+ * @param _tabIndex tabIndex attribute. Default -1
+ * @property modalTitle title of modal. Pass title string with + operator
+ * @property modalBody html content of body of modal
+ * @property modalButton Close button will be placed in default. Use this if modal need more buttons
+ * @author Seungyeon Choi {@literal <git@vxz.me>}
+ */
 class ModalTemplate(
     private val modalId: String,
     private val _tabIndex: Int = -1

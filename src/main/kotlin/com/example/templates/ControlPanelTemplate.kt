@@ -5,7 +5,6 @@ import kotlinx.html.*
 
 /**
  * Control panel for maintenance server of Daichang in lively or without restart the server.
- *
  * @author Seungyeon Choi {@literal <git@vxz.me>}
  */
 class ControlPanelTemplate : Template<FlowContent> {
