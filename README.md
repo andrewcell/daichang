@@ -29,7 +29,7 @@ Daichang uses environment variable to configure server.
  - [x] Spreadsheet file caching (09.27.2022.)
  - [x] Better Javascript codes (09.27.2022.)
 
-## Phase 2 (Current)
+## Phase 2 (Branched)
  - [x] Initialize Git (09.27.2022.)
  - [x] Exposed SQL, data will be save into DBMS (09.28.2022.)
  - [x] Import, export to spreadsheet file (09.30.2022.)
@@ -39,7 +39,7 @@ Daichang uses environment variable to configure server.
  - [x] Full comments into source code. Implement JavaDoc (Dokka) (11.04.2022.)
  - [x] Unit tests (Do continuously)
 
-## Phase 3 (Planned)
+## Phase 3 (Current)
  - [ ] More customization options like database connection
  - [ ] Implement Vue.js
 
