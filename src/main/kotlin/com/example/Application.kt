@@ -2,11 +2,13 @@ package com.example
 
 import com.example.controllers.equipment
 import com.example.database.*
+import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.routing.*
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -38,6 +40,11 @@ fun main() {
 //            configureRouting()
             install(Routing) {
                 equipment()
+            }
+            install(CORS) {
+                allowHost("localhost:5173")
+                allowHost("192.168.56.101:5173")
+                allowHeader(HttpHeaders.ContentType)
             }
             install(ContentNegotiation) {
                 json()

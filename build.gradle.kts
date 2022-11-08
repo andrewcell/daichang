@@ -36,6 +36,7 @@ dependencies {
     implementation("org.webjars:jquery:3.6.1")
     implementation("io.ktor:ktor-server-host-common-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-netty-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-cors:$ktorVersion")
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
 
     // Spreadsheet file operation
