@@ -1,7 +1,6 @@
 package com.example.models
 
 import com.example.LocalDateSerializer
-import com.example.models.Status
 import kotlinx.serialization.Serializable
 import java.time.LocalDate
 

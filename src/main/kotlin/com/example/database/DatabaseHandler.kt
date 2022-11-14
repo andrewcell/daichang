@@ -1,6 +1,5 @@
 package com.example.database
 
-import com.example.*
 import com.example.database.DatabaseHandler.isBusy
 import com.example.database.DatabaseHandler.laptop
 import com.example.database.DatabaseHandler.monitor
