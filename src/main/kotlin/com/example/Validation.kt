@@ -1,5 +1,6 @@
 package com.example
 
+import com.example.models.Equipment
 import java.time.LocalDate
 
 /**

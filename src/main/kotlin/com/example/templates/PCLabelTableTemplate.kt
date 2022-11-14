@@ -1,6 +1,6 @@
 package com.example.templates
 
-import com.example.PC
+import com.example.models.PC
 import io.ktor.server.html.*
 import kotlinx.html.*
 import java.text.SimpleDateFormat

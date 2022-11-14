@@ -2,6 +2,10 @@ package com.example
 
 import com.example.WorkSheetHandler.lock
 import com.example.database.DatabaseHandler
+import com.example.models.ERPData
+import com.example.models.Monitor
+import com.example.models.PC
+import com.example.models.Status
 import org.apache.poi.ss.SpreadsheetVersion
 import org.apache.poi.ss.util.AreaReference
 import org.apache.poi.ss.util.CellReference
@@ -63,7 +67,8 @@ object WorkSheetHandler {
                         "모니터" -> 3
                         else -> -1
                     }
-                    add(ERPData( // Convert to ERPData object and add to list
+                    add(
+                        ERPData( // Convert to ERPData object and add to list
                         index = index,
                         mgmtNumber = row.getCell(0).stringCellValue,
                         modelName = row.getCell(1).stringCellValue,
@@ -73,7 +78,8 @@ object WorkSheetHandler {
                         var3 = row.getCell(6).stringCellValue,
                         mfrDate = row.getCell(7).stringCellValue,
                         lastUser = row.getCell(10).stringCellValue
-                    ))
+                    )
+                    )
                 }
             }
             DatabaseHandler.importERP(value) // Send it to DatabaseHandler to save into database.

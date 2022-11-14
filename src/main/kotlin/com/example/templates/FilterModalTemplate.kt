@@ -1,7 +1,7 @@
 package com.example.templates
 
 import com.example.Constants
-import com.example.Status
+import com.example.models.Status
 import io.ktor.server.html.*
 import kotlinx.html.*
 

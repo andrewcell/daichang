@@ -1,5 +1,6 @@
-package com.example
+package com.example.models
 
+import com.example.EncryptSerializer
 import kotlinx.serialization.Serializable
 
 /**

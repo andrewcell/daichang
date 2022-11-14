@@ -5,6 +5,7 @@ import com.example.database.DatabaseHandler.isBusy
 import com.example.database.DatabaseHandler.laptop
 import com.example.database.DatabaseHandler.monitor
 import com.example.database.DatabaseHandler.pc
+import com.example.models.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.statements.InsertStatement
@@ -61,7 +62,8 @@ object DatabaseHandler {
                 } else pc.add(pcEntry)
             }
             (EquipmentTable innerJoin MonitorTable).select { EquipmentTable.id eq MonitorTable.equipmentId }.forEach { // select monitors
-                monitor.add(Monitor(
+                monitor.add(
+                    Monitor(
                     id = it[EquipmentTable.id],
                     cabinetNumber = it[EquipmentTable.cabinetNumber] ?: -1,
                     mgmtNumber = it[EquipmentTable.mgmtNumber],
@@ -76,7 +78,8 @@ object DatabaseHandler {
                     importDate = it[EquipmentTable.importDate],
                     status = Status.findByValue(it[EquipmentTable.status]) ?: Status.NOT_AVAILABLE,
                     memo = it[EquipmentTable.memo],
-                ))
+                )
+                )
             }
         }
     }

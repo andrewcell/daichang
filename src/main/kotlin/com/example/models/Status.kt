@@ -1,4 +1,4 @@
-package com.example
+package com.example.models
 
 /**
  * Status of each equipment. It is available to use, not available to use, or marked as to be disposed.

@@ -1,8 +1,8 @@
 package com.example.templates
 
-import com.example.Equipment
-import com.example.Monitor
-import com.example.PC
+import com.example.models.Equipment
+import com.example.models.Monitor
+import com.example.models.PC
 import io.ktor.server.html.*
 import kotlinx.html.*
 

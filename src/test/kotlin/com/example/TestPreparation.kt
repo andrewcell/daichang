@@ -1,6 +1,9 @@
 package com.example
 
 import com.example.database.*
+import com.example.models.Monitor
+import com.example.models.PC
+import com.example.models.Status
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import java.time.LocalDate

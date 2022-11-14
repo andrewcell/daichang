@@ -1,5 +1,8 @@
 package com.example
 
+import com.example.models.AjaxResponse
+import com.example.models.ResponseMessage
+import com.example.models.StaticData
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.nio.charset.Charset

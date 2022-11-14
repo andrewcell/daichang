@@ -1,7 +1,7 @@
 package com.example.controllers
 
-import com.example.AjaxResponse
-import com.example.ResponseMessage
+import com.example.models.AjaxResponse
+import com.example.models.ResponseMessage
 import com.example.database.DatabaseHandler
 import io.ktor.server.application.*
 import io.ktor.server.response.*

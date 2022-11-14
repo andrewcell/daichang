@@ -1,6 +1,6 @@
 package com.example.templates
 
-import com.example.Equipment
+import com.example.models.Equipment
 import io.ktor.server.html.*
 import kotlinx.html.*
 import java.time.format.DateTimeFormatter
