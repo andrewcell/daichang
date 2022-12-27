@@ -209,8 +209,15 @@ object DatabaseHandler {
         }
         var equipId = -1
         var updated = false
+        var message: String? = null
         try {
             transaction {
+                val cabinetNumberDuplicated = if (equipment.cabinetNumber != -1)
+                    !(EquipmentTable.select { EquipmentTable.cabinetNumber eq equipment.cabinetNumber }.empty()) else false
+                if (cabinetNumberDuplicated) {
+                    message = "이미 존재하는 순번입니다."
+                    return@transaction
+                }
                 /*val existsEquipId = if (equipment.id != -1) {
                     EquipmentTable.slice(EquipmentTable.id).select { EquipmentTable.id eq equipment.id }.firstOrNull()?.get(EquipmentTable.id)
                 } else null*/ // Disabled for prevent duplicate insert from spreadsheet import. Without it, Very poor performance.
@@ -250,7 +257,7 @@ object DatabaseHandler {
             }
         } catch (e: Exception) {
             println(e.printStackTrace())
-            return "데이터베이스 기록 중 오류 발생"
+            message = "데이터베이스 기록 중 오류 발생"
         } finally {
             equipment.id = equipId
             if (updated) removeFromList(index, equipment.id)
@@ -260,7 +267,7 @@ object DatabaseHandler {
                 3 -> monitor.add(equipment as Monitor)
             }
         }
-        return null
+        return message
     }
 
     /**
@@ -325,6 +332,7 @@ object DatabaseHandler {
         val numbers = lst.sortedBy { it.cabinetNumber }.mapNotNull { // Sort to forEach, get list of cabinet numbers
             it.cabinetNumber
         }
+        if (numbers.size <= 1) return (numbers.firstOrNull() ?: 0) + 1
         if (numbers.isNotEmpty()) {
             numbers.forEachIndexed { _index, it ->
                 if (it + 1 != numbers[_index + 1]) { // check next number is not in sequential
