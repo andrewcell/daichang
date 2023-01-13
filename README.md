@@ -30,6 +30,7 @@ Daichang uses environment variable to configure server.
  - [x] Better Javascript codes (09.27.2022.)
 
 ## Phase 2 (Branched)
+
  - [x] Initialize Git (09.27.2022.)
  - [x] Exposed SQL, data will be save into DBMS (09.28.2022.)
  - [x] Import, export to spreadsheet file (09.30.2022.)
@@ -39,9 +40,7 @@ Daichang uses environment variable to configure server.
  - [x] Full comments into source code. Implement JavaDoc (Dokka) (11.04.2022.)
  - [x] Unit tests (Do continuously)
 
-## Phase 3 (Current)
+## ~~Phase 3 (Canceled)~~
+ - [ ] Works almost as an ERP system
  - [ ] Implement Vue.js
  - [ ] More customization options like database connection
-
-## ~~Phase 4~~
- - [ ] Works almost as an ERP system
