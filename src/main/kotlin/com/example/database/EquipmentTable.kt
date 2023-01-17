@@ -33,7 +33,7 @@ import java.time.LocalDate
 object EquipmentTable : Table("equipments") {
     val id = integer("id").autoIncrement()
     val cabinetNumber = integer("cabinetNumber").nullable() // 보관순번, 미보관 시 null
-    val mgmtNumber = varchar("mgmtNumber", 45) // 관리번호
+    val mgmtNumber = varchar("mgmtNumber", 45).uniqueIndex() // 관리번호
     val mfrDate = date("mfrDate")
     val serialNumber = varchar("serialNumber", 45)
     val modelName = varchar("modelName", 45)

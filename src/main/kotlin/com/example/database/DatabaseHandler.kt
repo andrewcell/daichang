@@ -202,17 +202,14 @@ object DatabaseHandler {
         var message: String? = null
         try {
             transaction {
-                val cabinetNumberDuplicated = if (equipment.cabinetNumber != -1)
-                    getList(index).find { it.cabinetNumber == equipment.cabinetNumber } != null else false
-                if (cabinetNumberDuplicated) {
-                    message = "이미 존재하는 순번입니다."
+                val existsEquipId = EquipmentTable.slice(EquipmentTable.id).select { EquipmentTable.id eq equipment.id }.firstOrNull()?.get(EquipmentTable.id) //find it is exists
+                val duplicated = if (existsEquipId == null) {
+                    val found = getList(index).find { it.cabinetNumber == equipment.cabinetNumber || it.mgmtNumber == equipment.mgmtNumber }
+                    found != null } else false
+                if (duplicated) {
+                    message = "사용 할 수 없는 순번이거나 관리번호입니다."
                     return@transaction
                 }
-                /*val existsEquipId = if (equipment.id != -1) {
-                    EquipmentTable.slice(EquipmentTable.id).select { EquipmentTable.id eq equipment.id }.firstOrNull()?.get(EquipmentTable.id)
-                } else null*/ // Disabled for prevent duplicate insert from spreadsheet import. Without it, Very poor performance.
-                // Check every equipment its exists. Very poor performance. Comment above area if it feels too slow.
-                val existsEquipId = EquipmentTable.slice(EquipmentTable.id).select { EquipmentTable.id eq equipment.id }.firstOrNull()?.get(EquipmentTable.id) //find it is exists
                 fun insertToDB(iv: UpdateStatement? = null, k: InsertStatement<Number>? = null) {
                     val i = iv ?: k
                     if (i != null) {
@@ -244,18 +241,18 @@ object DatabaseHandler {
                 } else if (equipment is Monitor) {
                     insertNewMonitor(equipment, equipId, existsEquipId != null)
                 }
+                equipment.id = equipId
+                if (updated) removeFromList(index, equipment.id)
+                when (index) { // Add new equipment to cache list
+                    1 -> pc.add(equipment as PC)
+                    2 -> laptop.add(equipment as PC)
+                    3 -> monitor.add(equipment as Monitor)
+                    else -> null
+                }
             }
         } catch (e: Exception) {
             println(e.printStackTrace())
             message = "데이터베이스 기록 중 오류 발생"
-        } finally {
-            equipment.id = equipId
-            if (updated) removeFromList(index, equipment.id)
-            when (index) { // Add new equipment to cache list
-                1 -> pc.add(equipment as PC)
-                2 -> laptop.add(equipment as PC)
-                3 -> monitor.add(equipment as Monitor)
-            }
         }
         return message
     }
