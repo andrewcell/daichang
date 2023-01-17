@@ -1,7 +1,7 @@
 package com.example
 
-import com.example.controllers.equipment
 import com.example.database.*
+import com.example.plugins.configureRouting
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -37,10 +37,7 @@ fun main() {
             watchPaths = listOf("classes", "resources")
         ) {
       //      configureTemplating()
-//            configureRouting()
-            install(Routing) {
-                equipment()
-            }
+            configureRouting()
             install(CORS) {
                 allowHost("localhost:5173")
                 allowHost("192.168.56.101:5173")

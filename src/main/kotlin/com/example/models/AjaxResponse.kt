@@ -13,6 +13,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class AjaxResponse (
     val success: Boolean,
-    val message: ResponseMessage,
-    @Serializable(EncryptSerializer::class) val data: String? = null
+    val message: String?
 )

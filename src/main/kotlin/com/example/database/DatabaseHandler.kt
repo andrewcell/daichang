@@ -1,10 +1,10 @@
 package com.example.database
 
+import com.example.models.*
 import com.example.database.DatabaseHandler.isBusy
 import com.example.database.DatabaseHandler.laptop
 import com.example.database.DatabaseHandler.monitor
 import com.example.database.DatabaseHandler.pc
-import com.example.models.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.statements.InsertStatement
@@ -61,8 +61,7 @@ object DatabaseHandler {
                 } else pc.add(pcEntry)
             }
             (EquipmentTable innerJoin MonitorTable).select { EquipmentTable.id eq MonitorTable.equipmentId }.forEach { // select monitors
-                monitor.add(
-                    Monitor(
+                monitor.add(Monitor(
                     id = it[EquipmentTable.id],
                     cabinetNumber = it[EquipmentTable.cabinetNumber] ?: -1,
                     mgmtNumber = it[EquipmentTable.mgmtNumber],
@@ -77,8 +76,7 @@ object DatabaseHandler {
                     importDate = it[EquipmentTable.importDate],
                     status = Status.findByValue(it[EquipmentTable.status]) ?: Status.NOT_AVAILABLE,
                     memo = it[EquipmentTable.memo],
-                )
-                )
+                ))
             }
         }
     }
@@ -109,24 +107,16 @@ object DatabaseHandler {
     }
 
     /**
-     * return merged list of equipments lists
-     * @return all list of equipment merged
-     */
-    fun getMergedAll(): List<Equipment> {
-        return pc + laptop + monitor
-    }
-
-    /**
      * return equipment list by index
      * @param index Index number of equipment type. 0=PC, 1=Laptop, 2=Monitor
      * @return List of equipments
      */
-    fun getList(index: Int): List<Equipment>? = when (index) {
+    fun getList(index: Int): List<Equipment> = when (index) {
         1 -> pc
         2 -> laptop
         3 -> monitor
-        else -> null // return null if invalid index number passed.
-    }?.toList()
+        else -> emptyList() // return empty list if invalid index number passed.
+    }.toList()
 
     /**
      * Insert monitor or update existing monitor row
@@ -139,7 +129,7 @@ object DatabaseHandler {
             fun insertToDB(iv: UpdateStatement? = null, k: InsertStatement<Number>? = null) {
                 val i = iv ?: k
                 if (i != null) {
-                  //  i[MonitorTable.id] = equipId
+                    //  i[MonitorTable.id] = equipId
                     i[MonitorTable.equipmentId] = equipId
                     i[MonitorTable.ratio] = monitor.ratio
                     i[MonitorTable.resolution] = monitor.resolution
@@ -170,7 +160,7 @@ object DatabaseHandler {
             fun insertToDB(iv: UpdateStatement? = null, k: InsertStatement<Number>? = null) {
                 val i = iv ?: k
                 if (i != null) {
-                   // i[PCTable.id] = equipmentId
+                    // i[PCTable.id] = equipmentId
                     i[PCTable.equipmentId] = equipmentId
                     i[PCTable.cpu] = pc.cpu
                     i[PCTable.hdd] = pc.hdd
@@ -213,7 +203,7 @@ object DatabaseHandler {
         try {
             transaction {
                 val cabinetNumberDuplicated = if (equipment.cabinetNumber != -1)
-                    !(EquipmentTable.select { EquipmentTable.cabinetNumber eq equipment.cabinetNumber }.empty()) else false
+                    getList(index).find { it.cabinetNumber == equipment.cabinetNumber } != null else false
                 if (cabinetNumberDuplicated) {
                     message = "이미 존재하는 순번입니다."
                     return@transaction
@@ -286,8 +276,8 @@ object DatabaseHandler {
                 EquipmentTable.deleteWhere {
                     //(EquipmentTable.id eq id) and
                     (EquipmentTable.mgmtNumber eq mgmtNumber) and
-                    (EquipmentTable.lastUser eq lastUser) and
-                    (EquipmentTable.modelName eq modelName) // 3 items must be matched to delete
+                            (EquipmentTable.lastUser eq lastUser) and
+                            (EquipmentTable.modelName eq modelName) // 3 items must be matched to delete
                 }
             }
         } catch (e: Exception) {
@@ -399,7 +389,7 @@ object DatabaseHandler {
         var cpu: String? = null
         transaction {
             val found = EquipmentTable.leftJoin(PCTable).slice(PCTable.cpu).select { EquipmentTable.modelName like "$model%" }.limit(1).firstOrNull() // select by model name and get first one
-                    ?: return@transaction
+                ?: return@transaction
             cpu = found[PCTable.cpu]
         }
         return cpu
@@ -419,23 +409,5 @@ object DatabaseHandler {
             message = e.message
         }
         return message
-    }
-
-    /**
-     * Get equipment by primary key id
-     * @param id Id of equipment
-     * @return equipment object
-     */
-    fun getEquipmentById(id: Int): Equipment? {
-        return getMergedAll().find { it.id == id }
-    }
-
-    /**
-     * Get equipment by management number in ERP 3
-     * @param mgmtNumber management number of equipment
-     * @return equipment object
-     */
-    fun getEquipmentByMgmtNumber(mgmtNumber: String): Equipment? {
-        return getMergedAll().find { it.mgmtNumber == mgmtNumber }
     }
 }
