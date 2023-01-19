@@ -52,16 +52,7 @@ class MonitorTableTemplate(val monitor: Monitor) : Template<FlowContent> {
                     +monitor.mfrDate.format(DateTimeFormatter.ISO_LOCAL_DATE)
                 }
             }
-            tr("item") {
-                td("title") {
-                    colSpan = "1"
-                    +"사양"
-                }
-                td {
-                    colSpan = "3"
-                    +monitor.cable
-                }
-            }
+
             tr {
                 td("title no-bottom-border") {
                     colSpan = "1"
@@ -70,6 +61,16 @@ class MonitorTableTemplate(val monitor: Monitor) : Template<FlowContent> {
                 td("item no-bottom-border") {
                     colSpan = "3"
                     +monitor.lastUser
+                }
+            }
+            tr("item") {
+                td("title") {
+                    colSpan = "1"
+                    +"메모"
+                }
+                td {
+                    colSpan = "3"
+                    +monitor.memo
                 }
             }
             tr {
