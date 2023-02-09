@@ -55,6 +55,8 @@ dependencies {
     implementation("org.xerial:sqlite-jdbc:3.39.3.0")
     // https://mvnrepository.com/artifact/mysql/mysql-connector-java
     implementation("mysql:mysql-connector-java:8.0.31")
+    // https://mvnrepository.com/artifact/com.microsoft.sqlserver/mssql-jdbc
+    implementation("com.microsoft.sqlserver:mssql-jdbc:12.2.0.jre11")
 
     // Webjars
     // https://mvnrepository.com/artifact/org.webjars/bootstrap
