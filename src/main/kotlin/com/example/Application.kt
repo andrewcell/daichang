@@ -41,6 +41,7 @@ fun main() {
             install(CORS) {
                 allowHost("localhost:5173")
                 allowHost("192.168.56.101:5173")
+                allowHost("daichang.local")
                 allowHeader(HttpHeaders.ContentType)
             }
             install(ContentNegotiation) {

@@ -337,16 +337,18 @@ object DatabaseHandler {
     fun importERP(list: List<ERPData>) {
         transaction {
             //ERPDataTable.deleteAll()
-            ERPDataTable.batchInsert(list) { eq ->
-                this[ERPDataTable.index] = eq.index
-                this[ERPDataTable.mgmtNumber] = eq.mgmtNumber
-                this[ERPDataTable.modelName] = eq.modelName
-                this[ERPDataTable.serialNumber] = eq.serialNumber
-                this[ERPDataTable.var1] = eq.var1
-                this[ERPDataTable.var2] = eq.var2
-                this[ERPDataTable.var3] = eq.var3
-                this[ERPDataTable.mfrDate] = LocalDate.parse(eq.mfrDate, DateTimeFormatter.ISO_LOCAL_DATE)
-                this[ERPDataTable.lastUser] = eq.lastUser
+            list.forEach { eq ->
+                ERPDataTable.insert {
+                    it[index] = eq.index
+                    it[mgmtNumber] = eq.mgmtNumber
+                    it[modelName] = eq.modelName
+                    it[serialNumber] = eq.serialNumber
+                    it[var1] = eq.var1
+                    it[var2] = eq.var2
+                    it[var3] = eq.var3
+                    it[mfrDate] = LocalDate.parse(eq.mfrDate, DateTimeFormatter.ISO_LOCAL_DATE)
+                    it[lastUser] = eq.lastUser
+                }
             }
         }
     }

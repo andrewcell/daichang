@@ -262,7 +262,7 @@ fun Application.configureRouting() {
                         return AjaxResponse(false, "다른 작업이 진행중입니다. 잠시후 다시 시도해주세요.")
                     }
                     DatabaseHandler.isBusy = true
-                    val result = if (isERP) WorkSheetHandler.importERPData(it) else WorkSheetHandler.import(it)
+                    val result = if (isERP) WorkSheetHandler.importERPData(it, part.contentType) else WorkSheetHandler.import(it)
                     DatabaseHandler.isBusy = false
                     val message = if (result == null) {
                         "들여오기 성공"

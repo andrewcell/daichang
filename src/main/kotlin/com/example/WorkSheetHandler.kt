@@ -6,6 +6,7 @@ import com.example.models.ERPData
 import com.example.models.Monitor
 import com.example.models.PC
 import com.example.models.Status
+import io.ktor.http.*
 import org.apache.poi.ss.SpreadsheetVersion
 import org.apache.poi.ss.util.AreaReference
 import org.apache.poi.ss.util.CellReference
@@ -13,6 +14,9 @@ import org.apache.poi.xssf.usermodel.XSSFSheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
+import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.ZoneId
 
@@ -53,33 +57,67 @@ object WorkSheetHandler {
      * @param input Spreadsheet as input stream
      * @return error message. null if is success.
      */
-    fun importERPData(input: InputStream): String? {
+    fun importERPData(input: InputStream, contentType: ContentType?): String? {
         try {
-            val workbook = XSSFWorkbook(input)
-            val sheet = workbook.first() // select first sheet. Only one sheet will exist.
-            val value = buildList<ERPData> {
-                sheet.forEach { row ->
-                    if (row.rowNum == sheet.lastRowNum) return@forEach // if its last row <-- total counts is in last row.
-                    if (row.rowNum == 0) return@forEach // if its first row <-- column labels are in first row.
-                    val index = when (row.getCell(3).stringCellValue ?: "") { // Choose index from equipment type column.
-                        "데스크탑" -> 1
-                        "노트북" -> 2
-                        "모니터" -> 3
-                        else -> -1
+            val value = when (contentType?.toString()) {
+                "text/csv" -> {
+                    val rows = org.apache.commons.io.IOUtils.toString(input, Charset.forName("EUC-KR")).split("\n")
+                    buildList {
+                        rows.forEach { row ->
+                            val vars = row.split(',')
+                            if (vars.size != 20) return@forEach
+                            val index = when (vars[3]) { // Choose index from equipment type column.
+                                "데스크탑" -> 1
+                                "노트북" -> 2
+                                "모니터" -> 3
+                                else -> return@forEach
+                            }
+                            val mfrDate = SimpleDateFormat("MM/dd/yyyy").parse(vars[7])
+                            add(ERPData(
+                                index = index,
+                                mgmtNumber = vars[0],
+                                modelName = vars[1],
+                                serialNumber = vars[2],
+                                var1 = vars[4],
+                                var2 = vars[5],
+                                var3 = vars[6],
+                                mfrDate = SimpleDateFormat("yyyy-MM-dd").format(mfrDate),
+                                lastUser = vars[10]
+                            ))
+                        }
                     }
-                    add(
-                        ERPData( // Convert to ERPData object and add to list
-                        index = index,
-                        mgmtNumber = row.getCell(0).stringCellValue,
-                        modelName = row.getCell(1).stringCellValue,
-                        serialNumber = row.getCell(2).stringCellValue,
-                        var1 = row.getCell(4).stringCellValue,
-                        var2 = row.getCell(5).stringCellValue,
-                        var3 = row.getCell(6).stringCellValue,
-                        mfrDate = row.getCell(7).stringCellValue,
-                        lastUser = row.getCell(10).stringCellValue
-                    )
-                    )
+                }
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" -> {
+                    val workbook = XSSFWorkbook(input)
+                    val sheet = workbook.first() // select first sheet. Only one sheet will exist.
+                    buildList {
+                        sheet.forEach { row ->
+                            if (row.rowNum == sheet.lastRowNum) return@forEach // if its last row <-- total counts is in last row.
+                            if (row.rowNum == 0) return@forEach // if its first row <-- column labels are in first row.
+                            val index = when (row.getCell(3).stringCellValue ?: "") { // Choose index from equipment type column.
+                                "데스크탑" -> 1
+                                "노트북" -> 2
+                                "모니터" -> 3
+                                else -> -1
+                            }
+                            add(
+                                ERPData( // Convert to ERPData object and add to list
+                                    index = index,
+                                    mgmtNumber = row.getCell(0).stringCellValue,
+                                    modelName = row.getCell(1).stringCellValue,
+                                    serialNumber = row.getCell(2).stringCellValue,
+                                    var1 = row.getCell(4).stringCellValue,
+                                    var2 = row.getCell(5).stringCellValue,
+                                    var3 = row.getCell(6).stringCellValue,
+                                    mfrDate = row.getCell(7).stringCellValue,
+                                    lastUser = row.getCell(10).stringCellValue
+                                )
+                            )
+                        }
+                    }
+                }
+                else -> {
+                    throw Exception("Unsupported file type uploaded.")
                 }
             }
             DatabaseHandler.importERP(value) // Send it to DatabaseHandler to save into database.
