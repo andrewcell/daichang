@@ -26,7 +26,7 @@ fun main() {
     val dbUrl = System.getenv("db_url") ?: "" // Full database connection url
     val dbUser = System.getenv("db_user") ?:"" // database user
     val dbPass = System.getenv("db_pass") ?: "" // databae password
-    Database.connect(dbUrl, driver = "com.microsoft.sqlserver.jdbc.SQLServerDriver", user = dbUser, password = dbPass)
+    Database.connect(dbUrl, user = dbUser, password = dbPass)
     transaction {
         addLogger(Slf4jSqlDebugLogger)
         SchemaUtils.createMissingTablesAndColumns(EquipmentTable, PCTable, MonitorTable, ERPDataTable, LogTable, withLogs = true) // Construct database schemas
