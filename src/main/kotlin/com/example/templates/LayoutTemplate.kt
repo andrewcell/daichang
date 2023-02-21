@@ -36,6 +36,11 @@ class LayoutTemplate : Template<HTML> {
                             id = "navbarContent"
                             ul("navbar-nav") {
                                 li("nav-item") {
+                                    a("/all", classes = "nav-link") {
+                                        +"All"
+                                    }
+                                }
+                                li("nav-item") {
                                     a("/pc", classes = "nav-link") {
                                         +"PC"
                                     }

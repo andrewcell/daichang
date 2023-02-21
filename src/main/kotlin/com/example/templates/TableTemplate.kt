@@ -24,6 +24,9 @@ class TableTemplate(private val index: Byte) : Template<FlowContent> {
     private val modelNames = mutableListOf<String>()
     private val lastUsers = mutableListOf<String>()
     private val colList = when(index.toInt()) { // Every equipment type has different columns
+        0 -> {
+            Constants.colsTotal
+        }
         1 -> {
             Constants.colsPC
         }
@@ -83,45 +86,47 @@ class TableTemplate(private val index: Byte) : Template<FlowContent> {
                             attributes[dataInfoAttr] = "serial"
                             +it.serialNumber
                         }
-                        if (it is PC) {
-                            td {
-                                attributes[dataInfoAttr] = "CPU"
-                                +it.cpu
-                            }
-                            td {
-                                attributes[dataInfoAttr] = "HDD"
-                                +(it.hdd.toString() + "GB")
-                            }
-                            td {
-                                attributes[dataInfoAttr] = "RAM"
-                                +(it.ram.toString() + "GB")
-                            }
-                            td {
-                                attributes[dataInfoAttr] = "OS"
-                                +it.OS
-                            }
-                            if (index.toInt() == 2) {
+                        if (index != 0.toByte()) {
+                            if (it is PC) {
+                                td {
+                                    attributes[dataInfoAttr] = "CPU"
+                                    +it.cpu
+                                }
+                                td {
+                                    attributes[dataInfoAttr] = "HDD"
+                                    +(it.hdd.toString() + "GB")
+                                }
+                                td {
+                                    attributes[dataInfoAttr] = "RAM"
+                                    +(it.ram.toString() + "GB")
+                                }
+                                td {
+                                    attributes[dataInfoAttr] = "OS"
+                                    +it.OS
+                                }
+                                if (index.toInt() == 2) {
+                                    td {
+                                        attributes[dataInfoAttr] = "inch"
+                                        +it.inch.toString()
+                                    }
+                                }
+                            } else if (it is Monitor) {
+                                td {
+                                    attributes[dataInfoAttr] = "ratio"
+                                    +it.ratio
+                                }
+                                td {
+                                    attributes[dataInfoAttr] = "resolution"
+                                    +it.resolution
+                                }
                                 td {
                                     attributes[dataInfoAttr] = "inch"
                                     +it.inch.toString()
                                 }
-                            }
-                        } else if (it is Monitor) {
-                            td {
-                                attributes[dataInfoAttr] = "ratio"
-                                +it.ratio
-                            }
-                            td {
-                                attributes[dataInfoAttr] = "resolution"
-                                +it.resolution
-                            }
-                            td {
-                                attributes[dataInfoAttr] = "inch"
-                                +it.inch.toString()
-                            }
-                            td {
-                                attributes[dataInfoAttr] = "cable"
-                                +it.cable
+                                td {
+                                    attributes[dataInfoAttr] = "cable"
+                                    +it.cable
+                                }
                             }
                         }
                         td {

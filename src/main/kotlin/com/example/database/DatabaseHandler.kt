@@ -112,6 +112,7 @@ object DatabaseHandler {
      * @return List of equipments
      */
     fun getList(index: Int): List<Equipment> = when (index) {
+        0 -> pc + laptop + monitor
         1 -> pc
         2 -> laptop
         3 -> monitor

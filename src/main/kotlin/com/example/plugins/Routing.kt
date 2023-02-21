@@ -35,6 +35,13 @@ fun Application.configureRouting() {
                 }
             }
         }
+        get("/all") {
+            call.respondHtmlTemplate(LayoutTemplate()) {
+                content {
+                    insert(TableTemplate(0)) {}
+                }
+            }
+        }
         get("/pc") { // PC lists
             call.respondHtmlTemplate(LayoutTemplate()) {
                 content {

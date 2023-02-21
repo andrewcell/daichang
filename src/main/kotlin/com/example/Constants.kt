@@ -31,7 +31,7 @@ class Constants {
         val colsPC = colsStart + listOf("CPU" to "CPU", "HDD" to "HDD", "RAM" to "RAM", "OS" to "OS") + colsEnd
         val colsLaptop = colsStart + listOf("CPU" to "CPU", "HDD" to "HDD", "RAM" to "RAM", "OS" to "OS", "인치" to "inch") + colsEnd
         val colsMonitor = colsStart + listOf("화면비율" to "ratio", "해상도" to "resolution", "인치" to "inch", "케이블종류" to "cable") + colsEnd
-
+        val colsTotal = colsStart + colsEnd
         val staticData = this::class.java.classLoader.getResource("data.json")
             ?.let { Json.decodeFromString<StaticData>(it.readText(Charset.defaultCharset())) }
         val badRequest = AjaxResponse(false, "잘못된 요청입니다.")
