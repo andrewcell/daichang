@@ -57,6 +57,8 @@ dependencies {
     implementation("mysql:mysql-connector-java:8.0.31")
     // https://mvnrepository.com/artifact/com.microsoft.sqlserver/mssql-jdbc
     implementation("com.microsoft.sqlserver:mssql-jdbc:12.2.0.jre11")
+// https://mvnrepository.com/artifact/org.postgresql/postgresql
+    implementation("org.postgresql:postgresql:42.5.4")
 
     // Webjars
     // https://mvnrepository.com/artifact/org.webjars/bootstrap
