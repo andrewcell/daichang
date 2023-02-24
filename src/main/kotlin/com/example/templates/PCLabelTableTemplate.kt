@@ -89,10 +89,10 @@ class PCLabelTableTemplate(val pc: PC) : Template<FlowContent> {
                 }
             }
             tr {
-                td("title") { +"컴포넌트" }
+                td("title") { +"기사용처" }
                 td {
                     colSpan = "2"
-                    +" □ ERP  □ 포탈  □ 통합회계"
+                    +pc.lastUser
                 }
             }
             tr {
