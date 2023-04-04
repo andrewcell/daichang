@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "com.example"
-version = "0.0.1"
+version = "1.0.0"
 application {
     mainClass.set("com.example.ApplicationKt")
     val isDevelopment: Boolean = project.ext.has("development")
